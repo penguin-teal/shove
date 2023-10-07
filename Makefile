@@ -1,7 +1,8 @@
 MKDIR 	:= mkdir -p --
 RMDIR   := rm -Rf --
 CC      := clang
-CFLAGS  := -Wall -g -DDEBUG
+WARNINGS:= -Wall -Wextra -Wfloat-equal -Wundef
+CFLAGS  := $(WARNINGS) -O3 -g3 -DDEBUG
 BIN     := ./bin
 INCLUDE := ./include
 SRC     := ./src
@@ -12,7 +13,7 @@ OUT		:= $(BIN)/shove
 
 $(OUT): $(SRCS)
 	$(MKDIR) $(BIN)
-	$(CC) -I$(INCLUDE) $^ -o $(OUT)
+	$(CC) $(CFLAGS) -I$(INCLUDE) $^ -o $(OUT)
 
 clean:
 	$(RMDIR) $(BIN) $(OBJ)
