@@ -1,4 +1,11 @@
 #pragma once
+#include <stdint.h>
+
+struct Token
+{
+    int32_t symbol;
+    uint64_t value;
+};
 
 #define TOKEN_EOF           -1  //
 #define TOKEN_NAMESPACE     -2  // namespace i
@@ -8,14 +15,14 @@
 #define TOKEN_INTEGER       -6  // <integer literal>
 #define TOKEN_FLOAT         -7  // <float literal>
 #define TOKEN_IDENTIFIER    -8  // <identifier>
-#define TOKEN_POSITIVE      -9  // +a
-#define TOKEN_NEGATIVE      -10 // -a
-#define TOKEN_BITWISE_NOT   -11 // ~a
-#define TOKEN_LOGICAL_NOT   -12 // !a
-#define TOKEN_ADD           -13 // a + b
-#define TOKEN_SUBTRACT      -14 // a - b
-#define TOKEN_MULTIPLY      -15 // a * b
-#define TOKEN_DIVIDE        -16 // a / b
+#define TOKEN_RETURN             -9  // return a
+
+#define TOKEN_BITWISE_NOT        -11 // ~a
+#define TOKEN_BANG               -12 // !a
+#define TOKEN_PLUS               -13 // a + b OR +a
+#define TOKEN_MINUS              -14 // a - b OR -a
+#define TOKEN_STAR               -15 // a * b
+#define TOKEN_SLASH              -16 // a / b
 #define TOKEN_MODULO             -17 // a % b
 #define TOKEN_BITWISE_AND        -18 // a & b
 #define TOKEN_BITWISE_OR         -19 // a | b
@@ -31,9 +38,11 @@
 #define TOKEN_INTO_NAMESPACE     -29 // ::
 #define TOKEN_HASH               -30 // hash a
 #define TOKEN_CMP                -31 // a cmp b
-#define TOKEN_BANG_CMP           -32 // a !cmp b
-#define TOKEN_SET                -33 // i = b
+#define TOKEN_EQUAL              -33 // i = b
 #define TOKEN_NEW                -34 // new a
 #define TOKEN_TERMINATE          -35 // a;
 #define TOKEN_SHIFT_LEFT         -36 // a << b
 #define TOKEN_SHIFT_RIGHT        -37 // a >> b
+#define TOKEN_BLOCK_OPEN         -38 // {
+#define TOKEN_BLOCK_CLOSE        -39 // }
+#define TOKEN_THIS               -40 // this
