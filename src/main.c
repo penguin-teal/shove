@@ -1,38 +1,46 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 #include "defines.h"
+#include "fileIo.h"
 #include "lexer.h"
 #include "ir.h"
 
 int main(int argc, char **argv)
 {
     int ret = 0;
+    // Right now we're just gonna open this test
     FILE *f = fopen("./tests/add/main.shv", "r");
+    // If file couldn't be opened
     if(!f)
     {
-        ERR("Failed top open source file.\n");
+        ERR("Failed to open source file.\n");
+        // 2 indicates user error --- we got fed an invalid path
         return 2;
     }
     else
     {
-        struct stat statStruct;
-        int descriptor = fileno(f);
-        fstat(descriptor, &statStruct);
-        size_t size = statStruct.st_size;
+        // Get file size
+        // lexFile uses this as a basis for deciding the initial capacity
+        // of vectors
+        size_t size = fGetSize(f);
 
         struct Token *tokens;
         char *strings;
 
         if(!lexFile(f, size, &tokens, &strings))
         {
+            // We don't have to free tokens or strings on fail
             ret = 1;
             goto Cleanup;
         }
 
         if(!compileLlvm(tokens, strings))
         {
+            // We have to free tokens and strings when this fails
+            // since lexFile succeeded
             ret = 1;
+            free(tokens);
+            free(strings);
             goto Cleanup;
         }
 
