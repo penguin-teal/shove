@@ -1,9 +1,22 @@
 #pragma once
 #include <stdint.h>
 
+/**
+ * Represents a token and associated information.
+ */
 struct Token
 {
+    /**
+     * The int ID of this token. Should be a TOKEN_* macro.
+     */
     int32_t symbol;
+    /**
+     * Holds extra metadata about the token.
+     * Might be a binary representation of a `TOKEN_FLOAT`
+     * or `TOKEN_INTEGER` literal, or the offset in the
+     * string table of a `TOKEN_IDENTIFIER`.
+     * Should just be `0` if irrelevant.
+     */
     uint64_t value;
 };
 
