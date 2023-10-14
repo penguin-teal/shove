@@ -53,7 +53,12 @@ dkms.conf
 
 # Build
 bin/
+obj/
+lib/
 
 # Settings
 .vscode/
 .clangd
+
+# hashedbrown Lib
+libs/hashedbrown/
