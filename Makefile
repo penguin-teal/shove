@@ -10,6 +10,7 @@ LIB				:= ./lib
 SRC 		    := ./src
 SRCS  		    := $(wildcard $(SRC)/*.c)
 OUT				:= $(BIN)/shove
+LLVMFLAGS		:= `llvm-config --cflags --ldflags --system-libs --libs core`
 
 HASHEDBROWN		:= ./libs/hashedbrown
 HASHEDBROWNOUT	:= $(HASHEDBROWN)/bin/libhashedbrown.a
@@ -22,7 +23,7 @@ INCLUDEFLAGS	:= -I./include -I$(HASHEDBROWN)/include
 
 $(OUT): $(SRCS) $(HASHEDBROWNLIB)
 	$(MKDIR) $(BIN)
-	$(CC) $(CFLAGS) $(INCLUDEFLAGS) -L$(LIB) -lhashedbrown -lLLVM-16 $^ -o $(OUT)
+	$(CC) $(CFLAGS) $(LLVMFLAGS) $(INCLUDEFLAGS) -L$(LIB) -lhashedbrown $^ -o $(OUT)
 
 $(HASHEDBROWNLIB): $(HASHEDBROWNOUT)
 	$(MKDIR) $(LIB)
