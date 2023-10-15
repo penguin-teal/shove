@@ -2,7 +2,8 @@ MKDIR 			:= mkdir -p --
 RMDIR   		:= rm -Rf --
 CC      		:= clang
 WARNINGS		:= -Wall -Wextra -Wfloat-equal -Wundef
-CFLAGS 		    := $(WARNINGS) -std=c99 -O0 -g3 -DDEBUG
+ERRORS			:= -Werror=implicit-int -Werror=implicit-function-declaration
+CFLAGS 		    := $(WARNINGS) $(ERRORS) -std=c99 -O0 -g3 -DDEBUG
 BIN   		    := ./bin
 INCLUDE		    := ./include
 LIB				:= ./lib
