@@ -1,4 +1,5 @@
 #pragma once
+#include <error.h>
 #include <stdint.h>
 
 /**
@@ -18,6 +19,8 @@ struct Token
      * Should just be `0` if irrelevant.
      */
     uint64_t value;
+
+    struct FilePos fpos;
 };
 
 #define TOKEN_EOF           -1  //

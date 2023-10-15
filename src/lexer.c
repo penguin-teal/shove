@@ -7,6 +7,17 @@
 #include "token.h"
 #include "ir.h"
 
+static void fAdvance(struct FilePos *fpos, int ch)
+{
+    fpos->col++;
+
+    if (ch == '\n')
+    {
+        fpos->line++;
+        fpos->col = 0;
+    }
+}
+
 /**
  * Gets a token from the Shove source file.
  * @param src The in source file.
@@ -15,14 +26,25 @@
             Any data inputted may be overwritten.
  * @param idMax Buffer size of id.
  * @param numberLiteral Spot for putting numeric values. Will be filled in if is a number literla token.
+ * @param fpos A pointer to a FilePos struct to fill in. This will be read and overwritten.
+               First read should pass in `{ .fileName = <name>, .line = 1, .col = 0 }`.
  * @param lastTok The last token read. Just pass in TOKEN_EOF if not read yet.
  * @return The token.
 **/
-static int32_t getToken(FILE *src, int *ch, char *id, size_t idMax, uint64_t *numberLiteral, int lastTok)
+static int32_t getToken(FILE *src, int *ch, char *id,
+                        size_t idMax, uint64_t *numberLiteral,
+                        struct FilePos *fpos, int lastTok
+)
 {
     int lastChar = *ch;
+    fAdvance(fpos, lastChar);
 
-    while(isspace(lastChar)) lastChar = getc(src);
+    while(isspace(lastChar))
+    {
+        lastChar = getc(src);
+        fAdvance(fpos, lastChar);
+    }
+
 
     if(isalpha(lastChar))
     {
@@ -231,7 +253,7 @@ static int32_t getToken(FILE *src, int *ch, char *id, size_t idMax, uint64_t *nu
 
 }
 
-static size_t pushSpace(void **space, void **at, size_t size, void *item, size_t itemSize)
+static size_t pushSpace(void **space, void **at, size_t size, const void *item, size_t itemSize)
 {
     if((char*)*at - (char*)*space + itemSize > size)
     {
@@ -247,13 +269,21 @@ static size_t pushSpace(void **space, void **at, size_t size, void *item, size_t
     return size;
 }
 
-bool lexFile(FILE *src, size_t srcSize, struct Token **tokens, char **strings)
+bool lexFile(FILE *src, size_t srcSize, const char *srcName, struct Token **tokens, char **strings)
 {
     int32_t tok = -1;
     int ch = '\n';
     char identifier[1024];
     size_t identifierOffset = 0;
     uint64_t numberLiteral = 0x0;
+    struct FilePos fpos =
+    {
+        // This does mean that the struct relies on the caller's string
+        .fileName = srcName,
+
+        .line = 1,
+        .col = 0
+    };
     bool success = false;
 
     size_t stringSpaceSize = srcSize;
@@ -264,6 +294,7 @@ bool lexFile(FILE *src, size_t srcSize, struct Token **tokens, char **strings)
         return false;
     }
     char *atStringSpace = stringSpace;
+
     size_t tokenSpaceSize = srcSize * sizeof(struct Token);
     struct Token *tokenSpace = malloc(tokenSpaceSize);
     if(!tokenSpace)
@@ -278,11 +309,21 @@ bool lexFile(FILE *src, size_t srcSize, struct Token **tokens, char **strings)
 
     while(true)
     {
-        tok = getToken(src, &ch, identifier, sizeof identifier, &numberLiteral, tok);
+        tok = getToken(
+            src,
+            &ch,
+            identifier,
+            sizeof identifier,
+            &numberLiteral,
+            &fpos,
+            tok
+        );
 
         if(!tok || tok == TOKEN_EOF) break;
 
         tokStruct.symbol = tok;
+        // This will take a copy
+        tokStruct.fpos = fpos;
 
         switch(tok)
         {
