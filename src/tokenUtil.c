@@ -94,6 +94,8 @@ char* getTokenString(int32_t token)
             return "}";
         case TOKEN_THIS:
             return "this";
+        case TOKEN_VOID:
+            return "void";
         default:
             return "Unknown";
     }
