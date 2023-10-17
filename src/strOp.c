@@ -1,0 +1,28 @@
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+/**
+ * `malloc` s and concatenates two strings and returns the new string.
+ * The string must be freed by the caller.
+ * @param start The first string.
+ * @param startSize The length of the first string (excluding the `NUL`)
+                    if known, otherwise `0`.
+ * @param end The second string.
+* @param endSize The length of the second string (excluding the `NUL`)
+                 if known, otherwise `0`.
+ */
+char *mallocedStrConcat(const char *start, uint64_t startSize,
+                        const char *end, uint64_t endSize
+)
+{
+    if(!startSize) startSize = strlen(start);
+    if(!endSize) endSize = strlen(end);
+    char *str = malloc(startSize + endSize + 1);
+
+    memcpy(str, start, startSize);
+    memcpy(str, end, endSize);
+    str[startSize + endSize] = 0;
+
+    return str;
+}
