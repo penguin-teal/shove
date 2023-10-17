@@ -4,6 +4,7 @@
 #include "fileIo.h"
 #include "lexer.h"
 #include "ir.h"
+#include "shvError.h"
 
 int main(int argc, char **argv)
 {
@@ -27,6 +28,8 @@ int main(int argc, char **argv)
 
         struct Token *tokens;
         char *strings;
+
+        setDefaultShvIssueSeverities();
 
         if(!lexFile(f, size, fileName, &tokens, &strings))
         {
