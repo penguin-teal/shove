@@ -261,7 +261,6 @@ static size_t pushSpace(void **space, void **at, size_t size, const void *item, 
         void *newSpace = realloc(*space, size);
         if(!newSpace) return 0;
 
-        free(*space);
         *space = newSpace;
     }
     memcpy(*at, item, itemSize);
