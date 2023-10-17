@@ -1,17 +1,47 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
+#include <stdbool.h>
 #include "shvError.h"
 
-void vsyntaxErr(uint32_t errorId,
-                struct FilePos *f,
-                const char *fix,
-                const char *msgFormat,
-                va_list vaArgs
+static uint32_t severities[SHVERROR_MAX + 1];
+static uint32_t errorCount = 0;
+static uint32_t warningCount = 0;
+
+static void inline vsyntax(uint32_t severity,
+                           uint32_t errorId,
+                           struct FilePos *f,
+                           const char *fix,
+                           const char *msgFormat,
+                           va_list vaArgs
 )
 {
+    char startCol[2 + 1];
+    char ending[7 + 4 + 1];
+    uint32_t thisCount;
+    if(severity == SEVERITY_WARNING)
+    {
+        memcpy(startCol, "33", 3);
+        memcpy(ending, "Warning\x1B[0m", 12);
+        thisCount = ++warningCount;
+    }
+    // error
+    else
+    {
+        memcpy(startCol, "31", 3);
+        memcpy(ending, "Error\x1B[0m", 10);
+        thisCount = ++errorCount;
+    }
+
     fprintf(stderr,
-        "Syntax Error 0x%x at %s:%u:%u => ",
+        "\x1B[%sm(%u) Syntax %s ",
+        startCol,
+        thisCount,
+        ending
+    );
+    fprintf(stderr,
+        "0x%x at %s:%u:%u => ",
         errorId,
         f->fileName,
         f->line,
@@ -21,10 +51,44 @@ void vsyntaxErr(uint32_t errorId,
     fprintf(stderr, "\n\tFix: %s\n", fix);
 }
 
-void syntaxErr(uint32_t errorId, struct FilePos *f, const char *fix, const char *msgFormat, ...)
+bool vsyntaxIssue(uint32_t errorId,
+                  struct FilePos *f,
+                  const char *fix,
+                  const char *msgFormat,
+                  va_list vaArgs
+)
+{
+    vsyntax(severities[errorId], errorId, f, fix, msgFormat, vaArgs);
+    return severities[errorId] == SEVERITY_ERROR;
+}
+
+bool syntaxIssue(uint32_t errorId, struct FilePos *f, const char *fix, const char *msgFormat, ...)
 {
     va_list va;
     va_start(va, msgFormat);
-    vsyntaxErr(errorId, f, fix, msgFormat, va);
+    vsyntax(severities[errorId], errorId, f, fix, msgFormat, va);
     va_end(va);
+    return severities[errorId] == SEVERITY_ERROR;
+}
+
+bool setSyntaxIssueSeverity(uint32_t errorId, uint32_t severity)
+{
+    switch(severity)
+    {
+        case SHVERROR_MAX_PARAMS:
+        case SHVERROR_UNEXPECTED_TOKEN:
+            return false;
+        default:
+            severities[errorId] = severity;
+            return true;
+    }
+}
+
+void setDefaultSyntaxIssueSeverities(void)
+{
+    severities[SHVERROR_MAX_PARAMS] = SEVERITY_ERROR;
+    severities[SHVERROR_MISMATCH_SHOVE] = SEVERITY_ERROR;
+    severities[SHVERROR_UNEXPECTED_TOKEN] = SEVERITY_ERROR;
+    severities[SHVERROR_NO_DEF_NO_EXTERN] = SEVERITY_WARNING;
+    severities[SHVERROR_UNREACHABLE_CODE] = SEVERITY_WARNING;
 }

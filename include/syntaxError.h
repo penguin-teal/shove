@@ -1,11 +1,18 @@
+#pragma once
+
 #include <stdint.h>
 #include <stdarg.h>
+#include <stdbool.h>
 
-void vsyntaxErr(uint32_t errorId,
-                struct FilePos *f,
-                const char *fix,
-                const char *msgFormat,
-                va_list vaArgs
+bool vsyntaxIssue(uint32_t errorId,
+                  struct FilePos *f,
+                  const char *fix,
+                  const char *msgFormat,
+                  va_list vaArgs
 );
 
-void syntaxErr(uint32_t errorId, struct FilePos *f, const char *fix, const char *msgFormat, ...);
+bool syntaxIssue(uint32_t errorId, struct FilePos *f, const char *fix, const char *msgFormat, ...);
+
+bool setSyntaxIssueSeverity(uint32_t errorId, uint32_t severity);
+
+void setDefaultSyntaxIssueSeverities(void);
