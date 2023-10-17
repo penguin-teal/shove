@@ -21,7 +21,7 @@ char *mallocedStrConcat(const char *start, uint64_t startSize,
     char *str = malloc(startSize + endSize + 1);
 
     memcpy(str, start, startSize);
-    memcpy(str, end, endSize);
+    memcpy(str + startSize, end, endSize);
     str[startSize + endSize] = 0;
 
     return str;
