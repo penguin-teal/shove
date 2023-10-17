@@ -9,7 +9,7 @@ static uint32_t severities[SHVERROR_MAX + 1];
 static uint32_t errorCount = 0;
 static uint32_t warningCount = 0;
 
-static void inline vsyntax(uint32_t severity,
+static void inline vshvReport(uint32_t severity,
                            uint32_t errorId,
                            struct FilePos *f,
                            const char *fix,
@@ -51,27 +51,27 @@ static void inline vsyntax(uint32_t severity,
     fprintf(stderr, "\n\tFix: %s\n", fix);
 }
 
-bool vsyntaxIssue(uint32_t errorId,
+bool vshvIssue(uint32_t errorId,
                   struct FilePos *f,
                   const char *fix,
                   const char *msgFormat,
                   va_list vaArgs
 )
 {
-    vsyntax(severities[errorId], errorId, f, fix, msgFormat, vaArgs);
+    vshvReport(severities[errorId], errorId, f, fix, msgFormat, vaArgs);
     return severities[errorId] == SEVERITY_ERROR;
 }
 
-bool syntaxIssue(uint32_t errorId, struct FilePos *f, const char *fix, const char *msgFormat, ...)
+bool shvIssue(uint32_t errorId, struct FilePos *f, const char *fix, const char *msgFormat, ...)
 {
     va_list va;
     va_start(va, msgFormat);
-    vsyntax(severities[errorId], errorId, f, fix, msgFormat, va);
+    vshvReport(severities[errorId], errorId, f, fix, msgFormat, va);
     va_end(va);
     return severities[errorId] == SEVERITY_ERROR;
 }
 
-bool setSyntaxIssueSeverity(uint32_t errorId, uint32_t severity)
+bool setShvIssueSeverity(uint32_t errorId, uint32_t severity)
 {
     switch(severity)
     {
@@ -84,7 +84,7 @@ bool setSyntaxIssueSeverity(uint32_t errorId, uint32_t severity)
     }
 }
 
-void setDefaultSyntaxIssueSeverities(void)
+void setDefaultShvIssueSeverities(void)
 {
     severities[SHVERROR_MAX_PARAMS] = SEVERITY_ERROR;
     severities[SHVERROR_MISMATCH_SHOVE] = SEVERITY_ERROR;
