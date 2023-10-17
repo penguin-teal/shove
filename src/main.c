@@ -19,6 +19,7 @@ int main(int argc, char **argv)
     }
     else
     {
+        char fileName[] = "main.shv";
         // Get file size
         // lexFile uses this as a basis for deciding the initial capacity
         // of vectors
@@ -27,7 +28,7 @@ int main(int argc, char **argv)
         struct Token *tokens;
         char *strings;
 
-        if(!lexFile(f, size, &tokens, &strings))
+        if(!lexFile(f, size, fileName, &tokens, &strings))
         {
             // We don't have to free tokens or strings on fail
             ret = 1;
