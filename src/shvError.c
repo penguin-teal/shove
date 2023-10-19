@@ -35,7 +35,7 @@ static void inline vshvReport(uint32_t severity,
     }
 
     fprintf(stderr,
-        "\x1B[%sm(%u) Syntax %s ",
+        "\x1B[%sm(%u) Compile %s ",
         startCol,
         thisCount,
         ending
