@@ -371,7 +371,7 @@ bool lexFile(FILE *src, size_t srcSize, const char *srcName, struct Token **toke
 
     }
 
-    tokStruct.symbol = 0;
+    tokStruct.symbol = TOKEN_EOF;
     tokStruct.value = 0;
 
     tokenSpaceSize = pushSpace(
