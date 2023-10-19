@@ -1,0 +1,6 @@
+namespace add;
+
+i32 main
+{
+    return 5;
+}
