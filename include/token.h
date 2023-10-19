@@ -1,5 +1,5 @@
 #pragma once
-#include <error.h>
+#include <shvError.h>
 #include <stdint.h>
 
 /**
@@ -62,3 +62,4 @@ struct Token
 #define TOKEN_BLOCK_OPEN         -38 // {
 #define TOKEN_BLOCK_CLOSE        -39 // }
 #define TOKEN_THIS               -40 // this
+#define TOKEN_VOID               -41 // void
