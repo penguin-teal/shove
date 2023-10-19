@@ -34,6 +34,10 @@ int main(int argc, char **argv)
         if(!lexFile(f, size, fileName, &tokens, &strings))
         {
             // We don't have to free tokens or strings on fail
+            fprintf(
+                stderr,
+                "Compilation Failed: Lexing Failed\n"
+            );
             ret = 1;
             goto Cleanup;
         }
@@ -42,6 +46,10 @@ int main(int argc, char **argv)
         {
             // We have to free tokens and strings when this fails
             // since lexFile succeeded
+            fprintf(
+                stderr,
+                "Compilation Failed: Compiling Failed\n"
+            );
             ret = 1;
             free(tokens);
             free(strings);
