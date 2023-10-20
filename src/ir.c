@@ -51,12 +51,12 @@ bool expectToken(int32_t actual, int32_t expected, struct FilePos *fpos, const c
     }
 }
 
-static struct ShvType htGetShvType(hashtable_T *ht, const char *key)
+struct ShvType htGetShvType(hashtable_T *ht, const char *key)
 {
     return *(struct ShvType*)htGetBuffer(ht, key, strlen(key));
 }
 
-static bool htSetShvType(hashtable_T *ht, const char *key, struct ShvType *val)
+bool htSetShvType(hashtable_T *ht, const char *key, struct ShvType *val)
 {
     return htSetBuffer(
         ht,

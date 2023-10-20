@@ -3,6 +3,7 @@
 #include <llvm-c/Core.h>
 #include <hashedbrown.h>
 #include "token.h"
+#include "shvType.h"
 
 #define LTx127\
     ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"\
@@ -16,6 +17,10 @@ struct FileContext
     LLVMBuilderRef builder;
     hashtable_T *identifiers;
 };
+
+struct ShvType htGetShvType(hashtable_T *ht, const char *key);
+
+bool htSetShvType(hashtable_T *ht, const char *key, struct ShvType *val);
 
 struct ShvType tokenToType(struct Token token, struct FileContext *ctx);
 
