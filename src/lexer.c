@@ -246,6 +246,10 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 return TOKEN_BLOCK_OPEN;
             case '}':
                 return TOKEN_BLOCK_CLOSE;
+            case '(':
+                return TOKEN_PAREN_OPEN;
+            case ')':
+                return TOKEN_PAREN_CLOSE;
         }
 
         return 0;
