@@ -201,7 +201,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                     *ch = getc(src);
                     return TOKEN_LOGICAL_AND;
                 }
-                else return TOKEN_BITWISE_AND;
+                else return TOKEN_AMPERSAND;
             case '|':
                 if (*ch == '|')
                 {

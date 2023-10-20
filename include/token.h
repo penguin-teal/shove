@@ -42,7 +42,7 @@ enum ShvToken
     TOKEN_STAR            =   -15, // a * b
     TOKEN_SLASH           =   -16, // a / b
     TOKEN_MODULO          =   -17, // a % b
-    TOKEN_BITWISE_AND     =   -18, // a & b
+    TOKEN_AMPERSAND     =   -18, // a & b
     TOKEN_BITWISE_OR      =   -19, // a | b
     TOKEN_BITWISE_XOR     =   -20, // a ^ b
     TOKEN_LOGICAL_AND     =   -21, // a && b

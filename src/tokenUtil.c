@@ -51,7 +51,7 @@ char* getTokenString(int32_t token)
             return "/";
         case TOKEN_MODULO:
             return "%";
-        case TOKEN_BITWISE_AND:
+        case TOKEN_AMPERSAND:
             return "&";
         case TOKEN_BITWISE_OR:  
             return "|";
