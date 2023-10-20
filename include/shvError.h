@@ -38,6 +38,15 @@ bool vshvIssue(uint32_t errorId,
 
 bool shvIssue(uint32_t errorId, struct FilePos *f, const char *fix, const char *msgFormat, ...);
 
+bool shvIssuePtFix(
+    uint32_t errorId,
+    struct FilePos *f,
+    const char *msg,
+    int32_t ptToIndex,
+    const char *fixFmt,
+    ...
+);
+
 bool setShvIssueSeverity(uint32_t errorId, uint32_t severity);
 
 void setDefaultShvIssueSeverities(void);
