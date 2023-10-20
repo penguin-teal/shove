@@ -136,7 +136,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
             }
             id[idOffset++] = lastChar;
         }
-        while(isdigit((lastChar = getc(src))));
+        while(isdigit((lastChar = getc(src))) || lastChar == '.');
 
         id[idOffset] = '\0';
         *ch = lastChar;
