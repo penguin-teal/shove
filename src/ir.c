@@ -127,7 +127,7 @@ static struct Token *startsWithIdentifier(struct Token *tokens,
             .llvm = typeFn,
             .isSigned = 0
         };
-        htSetShvType(ctx->identifiers, strings + name.value, &fnType);
+        htSetPtr(ctx->identifiers, strings + name.value, fn);
 
         char *metaName = mallocedStrConcat(
             "return@", sizeof("return@") - 1,
@@ -142,6 +142,10 @@ static struct Token *startsWithIdentifier(struct Token *tokens,
             (char*)parameterTypes,
             parameterCount * sizeof(struct ShvType)
         );
+
+        memcpy(metaName, "type@", sizeof("type@") - 1);
+        memcpy(metaName + sizeof("type@") - 1, strings + name.value, nameLen + 1);
+        htSetShvType(ctx->identifiers, metaName, &fnType);
 
         free(metaName);
 
