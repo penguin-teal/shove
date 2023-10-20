@@ -26,3 +26,18 @@ char *mallocedStrConcat(const char *start, uint64_t startSize,
 
     return str;
 }
+
+char *atTypeStr(const char *name, uint64_t size)
+{
+    return mallocedStrConcat("type@", sizeof("type@") - 1, name, size);
+}
+
+char *atReturnStr(const char *name, uint64_t size)
+{
+    return mallocedStrConcat("return@", sizeof("return@"), name, size);
+}
+
+char *atParamsStr(const char *name, uint64_t size)
+{
+    return mallocedStrConcat("params@", sizeof("params") - 1, name, size);
+}

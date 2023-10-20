@@ -15,3 +15,9 @@
 char *mallocedStrConcat(const char *start, uint64_t startSize,
                         const char *end, uint64_t endSize
 );
+
+char *atTypeStr(const char *name, uint64_t size);
+
+char *atReturnStr(const char *name, uint64_t size);
+
+char *atParamsStr(const char *name, uint64_t size);
