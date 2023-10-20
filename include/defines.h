@@ -7,4 +7,4 @@
 
 #define ERR_HEAPFAIL(name) ERR("Failed to allocate heap memory for '" name "'.\n")
 
-#define NOT_IMPLEMENTED() ERR("Not Implemented")
+#define NOT_IMPLEMENTED(feature) ERR(feature "Not Implemented")
