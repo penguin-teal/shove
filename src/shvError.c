@@ -77,6 +77,7 @@ bool setShvIssueSeverity(uint32_t errorId, uint32_t severity)
     {
         case SHVERROR_MAX_PARAMS:
         case SHVERROR_UNEXPECTED_TOKEN:
+        case SHVERROR_EXTRA_DECIMAL_POINT:
             return false;
         default:
             severities[errorId] = severity;
@@ -89,6 +90,7 @@ void setDefaultShvIssueSeverities(void)
     severities[SHVERROR_MAX_PARAMS] = SEVERITY_ERROR;
     severities[SHVERROR_MISMATCH_SHOVE] = SEVERITY_ERROR;
     severities[SHVERROR_UNEXPECTED_TOKEN] = SEVERITY_ERROR;
+    severities[SHVERROR_EXTRA_DECIMAL_POINT] = SEVERITY_ERROR;
     severities[SHVERROR_NO_DEF_NO_EXTERN] = SEVERITY_WARNING;
     severities[SHVERROR_UNREACHABLE_CODE] = SEVERITY_WARNING;
 }

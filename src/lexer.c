@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "defines.h"
+#include "shvError.h"
 #include "token.h"
 #include "ir.h"
 
@@ -124,7 +125,12 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 if(!isFloatingPoint) isFloatingPoint = true;
                 else
                 {
-                    ERR("Double decimal point in floating point literal.");
+                    shvIssue(
+                        SHVERROR_EXTRA_DECIMAL_POINT,
+                        fpos,
+                        "Remove extra '.'.",
+                        "Extra decimal point in floating point literal."
+                    );
                     return 0;
                 }
             }
