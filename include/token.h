@@ -63,3 +63,5 @@ struct Token
 #define TOKEN_BLOCK_CLOSE        -39 // }
 #define TOKEN_THIS               -40 // this
 #define TOKEN_VOID               -41 // void
+#define TOKEN_PAREN_OPEN         -42 // (
+#define TOKEN_PAREN_CLOSE        -43 // )

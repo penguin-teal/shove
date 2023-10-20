@@ -11,7 +11,8 @@
  * an upper-case letter (with the exception of `EOF`).
  *
  * @remarks The string must NOT be freed or managed by the caller.
- * @return A null-terminated string identifying the given token symbol.
+ * @return A null-terminated string identifying the given token symbol,
+ *         or `"Unknown"` if invalid.
  */
 char* getTokenString(int32_t token)
 {
@@ -96,6 +97,10 @@ char* getTokenString(int32_t token)
             return "this";
         case TOKEN_VOID:
             return "void";
+        case TOKEN_PAREN_OPEN:
+            return "(";
+        case TOKEN_PAREN_CLOSE:
+            return ")";
         default:
             return "Unknown";
     }
