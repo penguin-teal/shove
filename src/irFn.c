@@ -149,6 +149,8 @@ struct Token *irDefineBranch(
                         returnType,
                         tok
                     );
+                    if(!tok) return NULL;
+
                     LLVMBuildRet(
                         ctx->builder,
                         result
