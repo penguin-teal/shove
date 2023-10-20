@@ -328,14 +328,16 @@ bool lexFile(FILE *src, size_t srcSize, const char *srcName, struct Token **toke
             tok
         );
 
-        if(!tok || tok == TOKEN_EOF) break;
-
         tokStruct.symbol = tok;
         // This will take a copy
         tokStruct.fpos = fpos;
 
         switch(tok)
         {
+            case 0:
+                goto Cleanup;
+            case TOKEN_EOF:
+                goto ExitWhile;
             case TOKEN_INTEGER:
             case TOKEN_FLOAT:
             case TOKEN_SHOVE:
@@ -365,6 +367,7 @@ bool lexFile(FILE *src, size_t srcSize, const char *srcName, struct Token **toke
                 tokStruct.value = 0x0;
                 break;
         }
+    ExitWhile:
 
         tokenSpaceSize = pushSpace(
             (void**)&tokenSpace,
