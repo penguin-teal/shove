@@ -371,7 +371,6 @@ bool lexFile(FILE *src, size_t srcSize, const char *srcName, struct Token **toke
                 tokStruct.value = 0x0;
                 break;
         }
-    ExitWhile:
 
         tokenSpaceSize = pushSpace(
             (void**)&tokenSpace,
@@ -388,6 +387,7 @@ bool lexFile(FILE *src, size_t srcSize, const char *srcName, struct Token **toke
 
     }
 
+ExitWhile:
     tokStruct.symbol = TOKEN_EOF;
     tokStruct.value = 0;
 
