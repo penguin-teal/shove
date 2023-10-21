@@ -265,14 +265,18 @@ static int32_t getToken(FILE *src, int *ch, char *id,
 
 static size_t pushSpace(void **space, void **at, size_t size, const void *item, size_t itemSize)
 {
-    if((char*)*at - (char*)*space + itemSize > size)
+    size_t needed = (char*)*at - (char*)*space + itemSize;
+    if(needed > size)
     {
-        size *= 2;
+        if(size * 2 < needed) size *= 2;
+        else size = needed;
+
         void *newSpace = realloc(*space, size);
         if(!newSpace) return 0;
 
         *space = newSpace;
     }
+
     memcpy(*at, item, itemSize);
     *at += itemSize;
     return size;
