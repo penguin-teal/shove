@@ -10,13 +10,19 @@
 
 static void fAdvance(struct FilePos *fpos, int ch)
 {
-    fpos->col++;
+    fpos->col = fpos->col + fpos->len;
+    fpos->len = 1;
 
     if (ch == '\n')
     {
         fpos->line++;
         fpos->col = 0;
     }
+}
+
+static void fLen(struct FilePos *fpos, uint32_t len)
+{
+    fpos->len = len;
 }
 
 /**
@@ -28,7 +34,7 @@ static void fAdvance(struct FilePos *fpos, int ch)
  * @param idMax Buffer size of id.
  * @param numberLiteral Spot for putting numeric values. Will be filled in if is a number literla token.
  * @param fpos A pointer to a FilePos struct to fill in. This will be read and overwritten.
-               First read should pass in `{ .fileName = <name>, .line = 1, .col = 0 }`.
+               First read should pass in `{ .fileName = <name>, .line = 0, .col = 0 }`.
  * @param lastTok The last token read. Just pass in TOKEN_EOF if not read yet.
  * @return The token.
 **/
@@ -56,6 +62,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
             id[idOffset++] = lastChar;
             if(idOffset + 1 >= idMax) break;
         }
+        fLen(fpos, idOffset);
         id[idOffset] = '\0';
         *ch = lastChar;
 
@@ -88,6 +95,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 {
                     id[idOffset++] = lastChar;
                 }
+                fLen(fpos, idOffset + 2);
                 id[idOffset] = '\0';
                 *numberLiteral = strtoll(id, &end, 16);
                 *ch = lastChar;
@@ -99,6 +107,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 {
                     id[idOffset++] = lastChar;
                 }
+                fLen(fpos, idOffset + 2);
                 id[idOffset] = '\0';
                 *numberLiteral = strtoll(id, &end, 8);
                 *ch = lastChar;
@@ -107,6 +116,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
             case 'b':
                 while ((lastChar = getc(src)) == '0' || lastChar == '1')
                 {
+                    fAdvance(fpos, lastChar + 2);
                     id[idOffset++] = lastChar;
                 }
                 id[idOffset] = '\0';
@@ -138,6 +148,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
         }
         while(isdigit((lastChar = getc(src))) || lastChar == '.');
 
+        fLen(fpos, idOffset);
         id[idOffset] = '\0';
         *ch = lastChar;
         
@@ -173,6 +184,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 do
                 {
                     *ch = getc(src);
+                    fAdvance(fpos, *ch);
                     *numberLiteral = ++i;
                 }
                 while(*ch == '>');
@@ -190,6 +202,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 if(*ch == '%')
                 {
                     *ch = getc(src);
+                    fLen(fpos, 2);
                     return TOKEN_POW;
                 }
                 else return TOKEN_MODULO;
@@ -199,6 +212,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 if (*ch == '&')
                 {
                     *ch = getc(src);
+                    fLen(fpos, 2);
                     return TOKEN_LOGICAL_AND;
                 }
                 else return TOKEN_AMPERSAND;
@@ -206,6 +220,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 if (*ch == '|')
                 {
                     *ch = getc(src);
+                    fLen(fpos, 2);
                     return TOKEN_LOGICAL_OR;
                 }
                 else return TOKEN_BITWISE_OR;
@@ -221,11 +236,14 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 if(*ch == '<')
                 {
                     *ch = getc(src);
+                    fLen(fpos, 2);
+
                     return TOKEN_SHIFT_LEFT;
                 }
                 else if(*ch == '=')
                 {
                     *ch = getc(src);
+                    fLen(fpos, 2);
                     return TOKEN_LTE;
                 }
                 else return TOKEN_LT;
@@ -233,11 +251,13 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 if(*ch == '>')
                 {
                     *ch = getc(src);
+                    fLen(fpos, 2);
                     return TOKEN_SHIFT_RIGHT;
                 }
                 else if(*ch == '=')
                 {
                     *ch = getc(src);
+                    fLen(fpos, 2);
                     return TOKEN_GTE;
                 }
                 else return TOKEN_GT;
@@ -245,6 +265,7 @@ static int32_t getToken(FILE *src, int *ch, char *id,
                 if(*ch == ':')
                 {
                     *ch = getc(src);
+                    fLen(fpos, 2);
                     return TOKEN_INTO_NAMESPACE;
                 }
                 else return 0;
@@ -287,14 +308,13 @@ bool lexFile(FILE *src, size_t srcSize, const char *srcName, struct Token **toke
     int32_t tok = -1;
     int ch = '\n';
     char identifier[1024];
-    size_t identifierOffset = 0;
     uint64_t numberLiteral = 0x0;
     struct FilePos fpos =
     {
         // This does mean that the struct relies on the caller's string
         .fileName = srcName,
 
-        .line = 1,
+        .line = 0,
         .col = 0
     };
     bool success = false;

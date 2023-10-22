@@ -9,6 +9,7 @@ struct FilePos
     const char *fileName;
     uint32_t line;
     uint32_t col;
+    uint32_t len;
 };
 
 enum ShvError
