@@ -15,6 +15,7 @@ struct FileContext
     LLVMContextRef context;
     LLVMModuleRef module;
     LLVMBuilderRef builder;
+    LLVMPassManagerRef pass;
     hashtable_T *identifiers;
 };
 

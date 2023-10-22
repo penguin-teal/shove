@@ -1,5 +1,6 @@
 #include <error.h>
 #include <llvm-c/Core.h>
+#include <llvm-c/Types.h>
 #include <string.h>
 #include <hashedbrown.h>
 #include <stdlib.h>
@@ -14,7 +15,8 @@
 
 static void createLlvm(LLVMContextRef *context,
                        LLVMBuilderRef *builder,
-                       LLVMModuleRef *module
+                       LLVMModuleRef *module,
+                       LLVMPassManagerRef *pass
 )
 {
     *context = LLVMContextCreate();
@@ -22,13 +24,17 @@ static void createLlvm(LLVMContextRef *context,
 
     *module =
         LLVMModuleCreateWithNameInContext("test.shv", *context);
+    
+    *pass = LLVMCreateFunctionPassManagerForModule(*module);
 }
 
 static void destroyLlvm(LLVMContextRef context,
                         LLVMBuilderRef builder,
-                        LLVMModuleRef module
+                        LLVMModuleRef module,
+                        LLVMPassManagerRef pass
 )
 {
+    LLVMDisposePassManager(pass);
     LLVMDisposeBuilder(builder);
     LLVMDisposeModule(module);
     LLVMContextDispose(context);
@@ -102,17 +108,18 @@ static struct Token *startsWithIdentifier(struct Token *tokens,
     struct Token after = tokens[2];
     if(after.symbol == TOKEN_BLOCK_OPEN || after.symbol == TOKEN_SHOVE)
     {
-        LLVMValueRef fn;
+        LLVMValueRef fnVal;
         LLVMTypeRef typeFn;
         struct ShvType parameterTypes[128];
         uint32_t parameterCount;
         struct ShvType returnType;
-        size_t nameLen = strlen(strings + name.value);
+        char *strName = strings + name.value;
+        size_t nameLen = strlen(strName);
 
         struct Token *atToken = irDeclareFn(
             tokens,
             ctx,
-            &fn,
+            &fnVal,
             &typeFn,
             &returnType,
             parameterTypes,
@@ -122,32 +129,28 @@ static struct Token *startsWithIdentifier(struct Token *tokens,
         // irDeclareFn erred
         if(!atToken) return NULL;
 
-        struct ShvType fnType =
+        struct ShvType fnShvType =
         {
             .llvm = typeFn,
             .isSigned = 0
         };
-        htSetPtr(ctx->identifiers, strings + name.value, fn);
+        htSetPtr(ctx->identifiers, strName, fnVal);
 
-        char *metaName = mallocedStrConcat(
-            "return@", sizeof("return@") - 1,
-            strings + name.value, nameLen
-        );
-        htSetShvType(ctx->identifiers, metaName, &returnType);
+        char *returnKey = atReturnStr(strName, nameLen);
+        htSetShvType(ctx->identifiers, returnKey, &returnType);
+        free(returnKey);
 
-        // Name will be left over from last call
-        memcpy(metaName, "params@", sizeof("params@") - 1);
-        htSetBuffer(ctx->identifiers, metaName,
+        char *paramsKey = atParamsStr(strName, nameLen);
+        htSetBuffer(ctx->identifiers, paramsKey,
             nameLen + sizeof("params@"),
             (char*)parameterTypes,
             parameterCount * sizeof(struct ShvType)
         );
+        free(paramsKey);
 
-        memcpy(metaName, "type@", sizeof("type@") - 1);
-        memcpy(metaName + sizeof("type@") - 1, strings + name.value, nameLen + 1);
-        htSetShvType(ctx->identifiers, metaName, &fnType);
-
-        free(metaName);
+        char *typeKey = atTypeStr(strName, nameLen);
+        htSetShvType(ctx->identifiers, typeKey, &fnShvType);
+        free(typeKey);
 
         // Declare function without defining (i.e. for extern)
         if(atToken->symbol == TOKEN_TERMINATE)
@@ -162,7 +165,7 @@ static struct Token *startsWithIdentifier(struct Token *tokens,
         }
         // Compile body
         atToken = irDefineFn(
-            fn, atToken, strings, ctx,
+            fnVal, atToken, strings, ctx,
             fnScope, returnType, parameterTypes
         );
 
@@ -186,7 +189,8 @@ static bool compileTokens(struct Token *tokens,
                           char *strings,
                           LLVMContextRef context,
                           LLVMModuleRef module,
-                          LLVMBuilderRef builder
+                          LLVMBuilderRef builder,
+                          LLVMPassManagerRef pass
 )
 {
     bool ret = false;
@@ -209,6 +213,7 @@ static bool compileTokens(struct Token *tokens,
         .context = context,
         .module = module,
         .builder = builder,
+        .pass = pass,
         .identifiers = fileHashTable
     };
     populatePrimitiveTypes(&ctx);
@@ -272,13 +277,14 @@ bool compileLlvm(struct Token *tokens, char *strings)
     LLVMContextRef context;
     LLVMBuilderRef builder;
     LLVMModuleRef module;
-    createLlvm(&context, &builder, &module);
+    LLVMPassManagerRef pass;
+    createLlvm(&context, &builder, &module, &pass);
 
-    bool success = compileTokens(tokens, strings, context, module, builder);
+    bool success = compileTokens(tokens, strings, context, module, builder, pass);
 
     LLVMPrintModuleToFile(module, "./bin/testout.ir", NULL);
 
-    destroyLlvm(context, builder, module);
+    destroyLlvm(context, builder, module, pass);
 
     return success;
 }
