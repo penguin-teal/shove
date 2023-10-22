@@ -60,6 +60,7 @@ lib/
 .vscode/
 .clangd
 compile_commands.json
+.cache
 
 # hashedbrown Lib
 libs/hashedbrown/
