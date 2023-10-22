@@ -1,6 +1,7 @@
 #include <llvm-c/Core.h>
 #include <llvm-c/Types.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "defines.h"
 #include "hashedbrown.h"
@@ -10,6 +11,7 @@
 #include "tokenUtil.h"
 #include "irExpr.h"
 #include "shvType.h"
+#include "strOp.h"
 
 struct Token *irDeclareFn(struct Token *tokens,
                  struct FileContext *ctx,
@@ -122,19 +124,104 @@ struct Token *irDeclareFn(struct Token *tokens,
     return tokens + 2 + paramCount * 3;
 }
 
-struct Token *irDefineBranch(
-    struct FileContext *ctx,
-    hashtable_T *fnScope,
-    struct ShvType returnType,
-    struct Token *tokens,
-    char *strings
+struct Token *statementStartsWithId(struct Token *tokens,
+                                    char *strings,
+                                    struct FileContext *ctx,
+                                    LLVMBasicBlockRef firstBb
 )
 {
     struct Token *tok = tokens;
-    do
+    switch((tok + 1)->symbol)
+    {
+        // Declaring ref variable
+        case TOKEN_AMPERSAND:
+            NOT_IMPLEMENTED("References");
+            return NULL;
+        // Declaring variable
+        case TOKEN_IDENTIFIER:
+            {
+                struct ShvType type = tokenToType(*tok, ctx);
+                tok++;
+                char *name = strings + tok->value;
+                char *typeKey = atTypeStr(name, 0);
+                htSetShvType(ctx->identifiers, typeKey, &type);
+                free(typeKey);
+
+                LLVMBuilderRef start = LLVMCreateBuilderInContext(ctx->context);
+                LLVMPositionBuilder(start, firstBb, NULL);
+                LLVMValueRef val = LLVMBuildAlloca(start, type.llvm, name);
+                LLVMDisposeBuilder(start);
+
+                htSetPtr(ctx->identifiers, name, val);
+                return statementStartsWithId(tok, strings, ctx, firstBb);
+            }
+            break;
+        // Setting existing variable
+        case TOKEN_EQUAL:
+            {
+                char *name = strings + tok->value;
+                char *typeKey = atTypeStr(name, 0);
+                struct ShvType type = htGetShvType(ctx->identifiers, typeKey);
+                free(typeKey);
+
+                LLVMValueRef pAlloca = htGetPtr(ctx->identifiers, name);
+
+                tok += 2;
+
+                LLVMValueRef result = 0;
+                tok = compileExpr(&result, type, tok, strings, ctx);
+                if(!tok) return NULL;
+                else if(tok->symbol != TOKEN_TERMINATE)
+                {
+                    shvIssuePtFix(
+                        SHVERROR_UNEXPECTED_TOKEN, &tok->fpos,
+                        "Missing semi-colon.",
+                        -1, "%s = <expression>;", name
+                    );
+                    return NULL;
+                }
+
+                LLVMBuildStore(ctx->builder, result, pAlloca);
+                return tok + 1;
+            }
+            break;
+        // Calling fn without args
+        case TOKEN_TERMINATE:
+            NOT_IMPLEMENTED();
+            break;
+        // Calling fn with args
+        case TOKEN_SHOVE:
+            NOT_IMPLEMENTED();
+            break;
+        default:
+            shvIssue(
+                SHVERROR_UNEXPECTED_TOKEN,
+                &tok->fpos,
+                "Unexpected token.",
+                "Unexpected token '%s' after identifier.",
+                getTokenString((tok + 1)->symbol)
+            );
+            return NULL;
+    }
+}
+
+struct Token *irDefineBranch(
+    struct FileContext *ctx,
+    struct ShvType returnType,
+    struct Token *tokens,
+    char *strings,
+    LLVMBasicBlockRef firstBb
+)
+{
+    struct Token *tok = tokens;
+    while(true)
     {
         switch(tok->symbol)
         {
+            case TOKEN_IDENTIFIER:
+                tok = statementStartsWithId(tok, strings, ctx, firstBb);
+                if(!tok) return NULL;
+                break;
             case TOKEN_RETURN:
                 tok++;
                 if(LLVMGetTypeKind(returnType.llvm) == LLVMVoidTypeKind)
@@ -147,7 +234,9 @@ struct Token *irDefineBranch(
                     tok = compileExpr(
                         &result,
                         returnType,
-                        tok
+                        tok,
+                        strings,
+                        ctx
                     );
                     if(!tok) return NULL;
 
@@ -178,7 +267,6 @@ struct Token *irDefineBranch(
                 return NULL;
         }
     }
-    while(tok++);
 }
 
 struct Token *irDefineFn(LLVMValueRef fn,
@@ -224,7 +312,7 @@ struct Token *irDefineFn(LLVMValueRef fn,
     )) return NULL;
 
     atToken++;
-    atToken = irDefineBranch(ctx, fnScope, returnType, atToken, strings);
+    atToken = irDefineBranch(ctx, returnType, atToken, strings, bb);
     
     if(!atToken)
     {

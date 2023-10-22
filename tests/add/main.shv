@@ -2,5 +2,6 @@ namespace add;
 
 i32 main
 {
-    return 5;
+    i32 x = 0xA4;
+    return 5 + 7;
 }
