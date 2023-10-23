@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include "appArgs.h"
 
-enum OptKey : int
+enum OptKey
 {
     OPT_VERBOSE         = 'v',
     OPT_QUIET           = 'q',
