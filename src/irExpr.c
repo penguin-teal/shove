@@ -16,8 +16,66 @@
 
 // to shorten next function cases
 #define GET_NEXT() do { atToken++; atToken =\
-    next(&result2, &resT2, typeExpectation, atToken, strings, NULL, ctx, (atToken - 1)->symbol);\
+    next(&result2, &resT2, typeExpectation, atToken, strings, NULL, ctx);\
     } while(0);
+
+struct ShvType divNums(
+    LLVMValueRef *result,
+    struct FileContext *ctx,
+    struct ShvType *nTy,
+    LLVMValueRef numer,
+    struct ShvType *dTy,
+    LLVMValueRef denom
+)
+{
+    LLVMTypeKind nK = LLVMGetTypeKind(nTy->llvm);
+    bool nS = nTy->isSigned;
+    LLVMTypeKind dK = LLVMGetTypeKind(dTy->llvm);
+    bool dS = dTy->isSigned;
+
+    struct ShvType quotTy;
+    if(nK == LLVMDoubleTypeKind || nK == LLVMFloatTypeKind
+    || dK == LLVMDoubleTypeKind || dK == LLVMFloatTypeKind)
+    {
+        LLVMValueRef quot;
+        quot = LLVMBuildFDiv(ctx->builder, numer, denom, "fdiv");
+        quotTy.llvm = LLVMTypeOf(quot);
+        quotTy.isSigned = true;
+        quotTy.bitSize = LLVMGetTypeKind(quotTy.llvm) == LLVMDoubleTypeKind ? 64 : 32;
+        *result = quot;
+        return quotTy;
+    }
+    else
+    {
+        // If both unsigned
+        if(nS == dS && !nS)
+        {
+            *result = LLVMBuildUDiv(ctx->builder, numer, denom, "udiv");
+            quotTy.llvm = LLVMTypeOf(*result);
+            quotTy.isSigned = false;
+            quotTy.bitSize = LLVMGetIntTypeWidth(quotTy.llvm) * 8;
+            return quotTy;
+        }
+        else
+        {
+            // Make both signed
+            if(!nS)
+            {
+                numer = LLVMBuildIntCast2(ctx->builder, numer, nTy->llvm, true, "scast");
+            }
+            else if(!dS)
+            {
+                denom = LLVMBuildIntCast2(ctx->builder, denom, dTy->llvm, true, "ucast");
+            }
+
+            *result = LLVMBuildSDiv(ctx->builder, numer, denom, "sdiv");
+            quotTy.llvm = LLVMTypeOf(*result);
+            quotTy.isSigned = true;
+            quotTy.bitSize = LLVMGetIntTypeWidth(quotTy.llvm) * 8;
+            return quotTy;
+        }
+    }
+}
 
 static struct Token *next(LLVMValueRef *result,
                           struct ShvType *resultType,
@@ -25,8 +83,7 @@ static struct Token *next(LLVMValueRef *result,
                           struct Token *tokens,
                           char *strings,
                           bool *done,
-                          struct FileContext *ctx,
-                          int32_t lastToken
+                          struct FileContext *ctx
 )
 {
     struct Token *atToken = tokens;
@@ -110,6 +167,8 @@ static struct Token *next(LLVMValueRef *result,
                 result2,
                 "add"
             );
+            // TODO
+            *resultType = typeExpectation;
             return atToken;
         case TOKEN_MINUS:
             GET_NEXT();
@@ -119,7 +178,23 @@ static struct Token *next(LLVMValueRef *result,
                 result2,
                 "sub"
             );
+            // TODO
+            *resultType = typeExpectation;
             return atToken;
+        case TOKEN_STAR:
+            GET_NEXT();
+            *result = LLVMBuildMul(
+                ctx->builder,
+                *result,
+                result2,
+                "mul"
+            );
+            // TODO
+            *resultType = typeExpectation;
+            return atToken;
+        case TOKEN_SLASH:
+            GET_NEXT();
+            *resultType = divNums(result, ctx, resultType, *result, &resT2, result2);
         default:
             shvIssue(
                 SHVERROR_UNEXPECTED_TOKEN,
@@ -142,15 +217,13 @@ struct Token *compileExpr(LLVMValueRef *result,
 {
     bool done = false;
     *result = NULL;
-    struct ShvType resultType;
+    struct ShvType resultType = { 0 };
     struct Token *atToken = tokens;
-    int32_t lastToken = 0;
     while(true)
     {
         atToken = next(result, &resultType, typeExpectation,
-            atToken, strings, &done, ctx, lastToken);
+            atToken, strings, &done, ctx);
         if(done) break;
-        else lastToken = atToken->symbol;
     }
 
     return atToken;
