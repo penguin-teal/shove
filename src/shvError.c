@@ -1,8 +1,11 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
 #include <stdarg.h>
 #include <string.h>
 #include <stdbool.h>
+#include <errno.h>
 #include "shvError.h"
 
 static uint32_t severities[SHVERROR_MAX + 1];
@@ -151,6 +154,79 @@ void setDefaultShvIssueSeverities(void)
     severities[SHVERROR_MISMATCH_SHOVE] = SEVERITY_ERROR;
     severities[SHVERROR_UNEXPECTED_TOKEN] = SEVERITY_ERROR;
     severities[SHVERROR_EXTRA_DECIMAL_POINT] = SEVERITY_ERROR;
+    severities[SHVERROR_ILLEGAL_IMPLICIT_CAST] = SEVERITY_ERROR;
+
     severities[SHVERROR_NO_DEF_NO_EXTERN] = SEVERITY_WARNING;
     severities[SHVERROR_UNREACHABLE_CODE] = SEVERITY_WARNING;
+}
+
+void setStreetRulesShvIssueSeverities(void)
+{
+    for(uint32_t i = 0; i < SHVERROR_MAX; i++)
+    {
+        if(i == SHVERROR_MAX_PARAMS
+        || i == SHVERROR_UNEXPECTED_TOKEN
+        || i == SHVERROR_EXTRA_DECIMAL_POINT)
+        {
+            continue;
+        }
+        else severities[i] = SEVERITY_WARNING;
+    }
+}
+
+void setPedanticShvIssueSeverities(void)
+{
+    for(uint32_t i = 0; i < SHVERROR_MAX; i++)
+    {
+        severities[i] = SEVERITY_ERROR;
+    }
+}
+
+static uint32_t lookupErrorString(const char *s)
+{
+    if(*s == '0' && (s[1] == 'x' || s[1] == 'X'))
+    {
+        int oldErrno = errno;
+        errno = 0;
+        uint32_t num = (uint32_t)strtoul(s + 2, NULL, 16);
+
+        int error = errno;
+        errno = oldErrno;
+
+        if(error) return 0;
+        else return num;
+    }
+    else return 0;
+}
+
+static char *indexNulSpace(char *s)
+{
+    while(*(++s) && !isspace(*s));
+    return s;
+}
+
+bool setShvIssueString(char *s, uint32_t severity)
+{
+    if(!(*s)) return true;
+    char *at = s;
+
+    while(true)
+    {
+        char *end = indexNulSpace(at);
+        char atEnd = *end;
+
+        *end = 0;
+
+        uint32_t errorId = lookupErrorString(at);
+        if(!errorId) return false;
+        
+        if(!setShvIssueSeverity(errorId, severity)) return false;
+
+        *end = atEnd;
+
+        if(!atEnd) break;
+        else at = end + 1;
+    }
+
+    return true;
 }

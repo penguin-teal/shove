@@ -20,8 +20,9 @@ enum ShvError
     SHVERROR_NO_DEF_NO_EXTERN = 0x0004,
     SHVERROR_UNREACHABLE_CODE = 0x0005,
     SHVERROR_EXTRA_DECIMAL_POINT = 0x0006,
+    SHVERROR_ILLEGAL_IMPLICIT_CAST = 0x0007,
 
-    SHVERROR_MAX = SHVERROR_EXTRA_DECIMAL_POINT
+    SHVERROR_MAX = SHVERROR_ILLEGAL_IMPLICIT_CAST
 };
 
 enum ShvSeverity
@@ -51,3 +52,9 @@ bool shvIssuePtFix(
 bool setShvIssueSeverity(uint32_t errorId, uint32_t severity);
 
 void setDefaultShvIssueSeverities(void);
+
+void setStreetRulesShvIssueSeverities(void);
+
+void setPedanticShvIssueSeverities(void);
+
+bool setShvIssueString(char *s, uint32_t severity);
