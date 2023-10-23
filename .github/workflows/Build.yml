@@ -13,6 +13,7 @@ jobs:
 
         steps:
         - uses: actions/checkout@v3
+        - run: bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
         - run: make
         - run: ./bin/shove ./tests/add
         - run: make clean
@@ -26,6 +27,7 @@ jobs:
 
         steps:
         - uses: actions/checkout@v3
+        - run: bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
         - run: make
         - run: ./bin/shove ./tests/add
         - run: make clean
