@@ -1,4 +1,5 @@
 #include <argp.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include "appArgs.h"
 
@@ -35,9 +36,19 @@ static error_t parseOpt(int key, char *arg, struct argp_state *state)
     switch(key)
     {
         case OPT_VERBOSE:
+            if(arguments->quiet)
+            {
+                printf("Options 'quiet' and 'verbose' are mutually exclusive.\n");
+                return 1;
+            }
             arguments->verbose = true;
             break;
         case OPT_QUIET:
+            if(arguments->verbose)
+            {
+                printf("Options 'quiet' and 'verbose' are mutually exclusive.\n");
+                return 1;
+            }
             arguments->quiet = true;
             break;
         case OPT_OUT_FILE:
@@ -50,9 +61,19 @@ static error_t parseOpt(int key, char *arg, struct argp_state *state)
             arguments->warn = arg;
             break;
         case OPT_PEDANTIC:
+            if(arguments->streetRules)
+            {
+                printf("Options 'pedantic' and 'street-rules' are mutually exclusive.\n");
+                return 1;
+            }
             arguments->pedantic = true;
             break;
         case OPT_STREET_RULES:
+            if(arguments->pedantic)
+            {
+                printf("Options 'pedantic' and 'street-rules' are mutually exclusive.\n");
+                return 1;
+            }
             arguments->streetRules = true;
             break;
         
@@ -90,7 +111,7 @@ bool doArgp(struct AppArgs *appArgs, int argc, char **argv)
     appArgs->args[0] = NULL;
 
     appArgs->verbose = false;
-    appArgs->quiet = true;
+    appArgs->quiet = false;
     appArgs->outFile = "-";
     appArgs->err = NULL;
     appArgs->warn = NULL;
