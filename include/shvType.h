@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <llvm-c/Core.h>
 
 struct ShvType
@@ -10,4 +11,5 @@ struct ShvType
      * Whether or not the type is signed, if relevant.
      */
     bool isSigned;
+    uint64_t bitSize;
 };
