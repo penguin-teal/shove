@@ -13,7 +13,7 @@ jobs:
 
         steps:
         - uses: actions/checkout@v3
-        - run: bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+        - run: apt-get install clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python3-clang 
         - run: make
         - run: ./bin/shove ./tests/add
         - run: make clean
@@ -27,7 +27,7 @@ jobs:
 
         steps:
         - uses: actions/checkout@v3
-        - run: bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+        - run: apt-get install clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python3-clang 
         - run: make
         - run: ./bin/shove ./tests/add
         - run: make clean
