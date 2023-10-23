@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 /**
  * `malloc` s and concatenates two strings and returns the new string.
@@ -40,4 +41,12 @@ char *atReturnStr(const char *name, uint64_t size)
 char *atParamsStr(const char *name, uint64_t size)
 {
     return mallocedStrConcat("params@", sizeof("params") - 1, name, size);
+}
+
+bool strEndsWith(char *overall, char *substr)
+{
+    size_t sublen = strlen(substr);
+    size_t len = strlen(overall);
+    if(sublen > len) return false;
+    return !memcmp(overall + len - sublen, substr, sublen);
 }

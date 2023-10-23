@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /**
  * `malloc` s and concatenates two strings and returns the new string.
@@ -21,3 +22,5 @@ char *atTypeStr(const char *name, uint64_t size);
 char *atReturnStr(const char *name, uint64_t size);
 
 char *atParamsStr(const char *name, uint64_t size);
+
+bool strEndsWith(char *overall, char *substr);
