@@ -1,0 +1,31 @@
+name: c
+
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+        branches: [ "main" ]
+
+jobs:
+    build-gcc:
+
+        runs-on: ubuntu-latest
+
+        steps:
+        - uses: actions/checkout@v3
+        - run: make
+        - run: ./bin/shove ./tests/add
+        - run: make clean
+
+    build-clang:
+
+        runs-on: ubuntu-latest
+
+        env:
+            CC: clang
+
+        steps:
+        - uses: actions/checkout@v3
+        - run: make
+        - run: ./bin/shove ./tests/add
+        - run: make clean
