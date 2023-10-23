@@ -5,10 +5,15 @@
 #include "lexer.h"
 #include "ir.h"
 #include "shvError.h"
+#include "appArgs.h"
 
 int main(int argc, char **argv)
 {
     int ret = 0;
+
+    struct AppArgs appArgs = { 0 };
+    if(!doArgp(&appArgs, argc, argv)) return 2;
+
     // Right now we're just gonna open this test
     FILE *f = fopen("./tests/add/main.shv", "r");
     // If file couldn't be opened
