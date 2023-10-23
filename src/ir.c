@@ -84,6 +84,7 @@ static void populatePrimitiveTypes(struct FileContext *ctx)
 
     type.llvm = LLVMInt32TypeInContext(ctx->context);
     type.isSigned = true;
+    type.bitSize = 32;
     htSetShvType(
         ctx->identifiers,
         "i32",
