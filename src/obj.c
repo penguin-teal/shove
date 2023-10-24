@@ -1,6 +1,7 @@
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
+#include <llvm-c/Types.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include "defines.h"
@@ -27,8 +28,8 @@ bool toObjectFile(LLVMModuleRef module, const char *triple, LLVMTargetMachineRef
     LLVMSetTarget(module, triple);
 
     char *errStr;
-    bool success = LLVMTargetMachineEmitToFile(target, module, objFName, LLVMObjectFile, &errStr);
-    if(success) return true;
+    LLVMBool failed = LLVMTargetMachineEmitToFile(target, module, objFName, LLVMObjectFile, &errStr);
+    if(!failed) return true;
     else
     {
         ERR("Failed to emit object code: %s\n", errStr);
@@ -43,8 +44,8 @@ bool getTargetMachine(const char *triple, LLVMTargetMachineRef *machine)
 
     char *errStr;
     LLVMTargetRef target;
-    bool foundTarget = LLVMGetTargetFromTriple(triple, &target, &errStr);
-    if(!foundTarget)
+    LLVMBool didntFindTarget = LLVMGetTargetFromTriple(triple, &target, &errStr);
+    if(didntFindTarget)
     {
         ERR("Failed to find target for triple: %s\n", errStr);
         LLVMDisposeMessage(errStr);
