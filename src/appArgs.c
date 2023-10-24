@@ -12,7 +12,8 @@ enum OptKey
     OPT_WARN            = -2,
     OPT_PEDANTIC        = 'p',
     OPT_STREET_RULES    = -3,
-    OPT_TARGET          = 't'
+    OPT_TARGET          = 't',
+    OPT_OBJ_PATTERN     = -4
 };
 
 const char *argp_program_version = "shove 0.0.1";
@@ -21,14 +22,15 @@ static const char doc[] = "shove -- The shove Language compiler.";
 static const char argsDoc[] = "srcDir";
 static struct argp_option options[] =
 {
-    { "verbose",        OPT_VERBOSE     , 0,     0,  "Describe what is happening.", 3 },
-    { "quiet",          OPT_QUIET       , 0,     0,  "Silence output.", 3 },
-    { "out-file",       OPT_OUT_FILE    , 0,     0,  "Output file.", 1 },
-    { "err",            OPT_ERR         , 0,     0,  "A space-separated list of warnings to turn into errors.", 2 },
-    { "warn",           OPT_WARN        , 0,     0,  "A space-separated list of valid errors to turn into warnings.", 2 },
-    { "pedantic",       OPT_PEDANTIC    , 0,     0,  "Turns all warnings into errors.", 2 },
-    { "street-rules",   OPT_STREET_RULES, 0,     0,  "Turns all valid errors into warnings.", 2 },
-    { "target",         OPT_TARGET      , 0,     0,  "The LLVM target triple to compile for.", 1 }
+    { "verbose",        OPT_VERBOSE     , 0,           0,  "Describe what is happening.", 3 },
+    { "quiet",          OPT_QUIET       , 0,           0,  "Silence output.", 3 },
+    { "out-file",       OPT_OUT_FILE    , "FILE",      0,  "Output file.", 1 },
+    { "err",            OPT_ERR         , "WARNINGS",  0,  "A space-separated list of warnings to turn into errors.", 2 },
+    { "warn",           OPT_WARN        , "ERRORS",    0,  "A space-separated list of valid errors to turn into warnings.", 2 },
+    { "pedantic",       OPT_PEDANTIC    , 0,           0,  "Turns all warnings into errors.", 2 },
+    { "street-rules",   OPT_STREET_RULES, 0,           0,  "Turns all valid errors into warnings.", 2 },
+    { "target",         OPT_TARGET      , "TARGET",    0,  "The LLVM target triple to compile for.", 1 },
+    { "obj-pattern",    OPT_OBJ_PATTERN , "PATTERN",   0,  "The pattern to create object files with. A '%' will be replace with the non-extension source file name.", 1 }
 };
 
 static error_t parseOpt(int key, char *arg, struct argp_state *state)
@@ -81,6 +83,9 @@ static error_t parseOpt(int key, char *arg, struct argp_state *state)
         case OPT_TARGET:
             arguments->target = arg;
             break;
+        case OPT_OBJ_PATTERN:
+            arguments->objPattern = arg;
+            break;
         
         case ARGP_KEY_ARG:
             if(state->arg_num > 1)
@@ -123,6 +128,7 @@ bool doArgp(struct AppArgs *appArgs, int argc, char **argv)
     appArgs->pedantic = false;
     appArgs->streetRules = false;
     appArgs->target = NULL;
+    appArgs->objPattern = NULL;
 
     error_t result = argp_parse(&argp, argc, argv, 0, 0, appArgs);
     return !result;
