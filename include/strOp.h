@@ -24,3 +24,5 @@ char *atReturnStr(const char *name, uint64_t size);
 char *atParamsStr(const char *name, uint64_t size);
 
 bool strEndsWith(char *overall, char *substr);
+
+uint64_t mallocedReplaceStr(const char *s, char c, const char *substring, uint64_t substrLen, uint32_t limit, char **out);
