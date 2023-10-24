@@ -1,7 +1,9 @@
+#include <llvm-c/Core.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
+#include <llvm-c/TargetMachine.h>
 #include "defines.h"
 #include "fileIo.h"
 #include "lexer.h"
@@ -9,6 +11,7 @@
 #include "shvError.h"
 #include "appArgs.h"
 #include "strOp.h"
+#include "obj.h"
 
 int main(int argc, char **argv)
 {
@@ -42,6 +45,13 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    char *triple;
+    if(appArgs.target) triple = LLVMGetDefaultTargetTriple();
+    else triple = appArgs.target;
+
+    LLVMTargetMachineRef targetMachine;
+    if(!getTargetMachine(triple, &targetMachine)) return 2;
+
     while((dirEntry = readdir(srcDir)))
     {
         char *fName = dirEntry->d_name;
@@ -57,6 +67,8 @@ int main(int argc, char **argv)
             if(!fullPath)
             {
                 ERR("%lu B realloc failed.", fullPathSize);
+                if(!appArgs.target) LLVMDisposeMessage(triple);
+                LLVMDisposeTargetMachine(targetMachine);
                 free(fullPath);
                 closedir(srcDir);
                 return 1;
@@ -84,6 +96,8 @@ int main(int argc, char **argv)
         if(!f)
         {
             ERR("Failed to open source file '%s'.\n", fullPath);
+            if(!appArgs.target) LLVMDisposeMessage(triple);
+            LLVMDisposeTargetMachine(targetMachine);
             free(fullPath);
             closedir(srcDir);
             return 1;
@@ -105,6 +119,8 @@ int main(int argc, char **argv)
             ERR(
                 "Compilation Failed: Lexing Failed\n"
             );
+            if(!appArgs.target) LLVMDisposeMessage(triple);
+            LLVMDisposeTargetMachine(targetMachine);
             free(fullPath);
             fclose(f);
             closedir(srcDir);
@@ -118,6 +134,8 @@ int main(int argc, char **argv)
             ERR(
                 "Compilation Failed: Compiling Failed\n"
             );
+            if(!appArgs.target) LLVMDisposeMessage(triple);
+            LLVMDisposeTargetMachine(targetMachine);
             free(fullPath);
             free(tokens);
             free(strings);
@@ -132,6 +150,8 @@ int main(int argc, char **argv)
         fclose(f);
     }
 
+    if(!appArgs.target) LLVMDisposeMessage(triple);
+    LLVMDisposeTargetMachine(targetMachine);
     free(fullPath);
     closedir(srcDir);
     return 0;
