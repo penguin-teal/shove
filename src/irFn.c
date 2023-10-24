@@ -55,7 +55,7 @@ struct Token *irDeclareFn(struct Token *tokens,
         }
         if(shove.value != paramCount)
         {
-            char fixString[32 + 127];
+            char fixString[33 + 127 + 1];
             sprintf(fixString, "Shove should look like this: '-%.*s'.", paramCount, LTx127);
 
             if(shvIssue(
@@ -155,7 +155,6 @@ struct Token *statementStartsWithId(struct Token *tokens,
                 htSetPtr(ctx->identifiers, name, val);
                 return statementStartsWithId(tok, strings, ctx, firstBb);
             }
-            break;
         // Setting existing variable
         case TOKEN_EQUAL:
             {
@@ -184,15 +183,14 @@ struct Token *statementStartsWithId(struct Token *tokens,
                 LLVMBuildStore(ctx->builder, result, pAlloca);
                 return tok + 1;
             }
-            break;
         // Calling fn without args
         case TOKEN_TERMINATE:
             NOT_IMPLEMENTED();
-            break;
+            return NULL;
         // Calling fn with args
         case TOKEN_SHOVE:
             NOT_IMPLEMENTED();
-            break;
+            return NULL;
         default:
             shvIssue(
                 SHVERROR_UNEXPECTED_TOKEN,
