@@ -1,9 +1,9 @@
-#include <llvm-c/Core.h>
+#include <llvm-c/TargetMachine.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
-#include <llvm-c/TargetMachine.h>
+#include <unistd.h>
 #include "defines.h"
 #include "fileIo.h"
 #include "lexer.h"
@@ -46,8 +46,8 @@ int main(int argc, char **argv)
     }
 
     char *triple;
-    if(appArgs.target) triple = LLVMGetDefaultTargetTriple();
-    else triple = appArgs.target;
+    if(appArgs.target) triple = appArgs.target;
+    else triple = LLVMGetDefaultTargetTriple();
 
     LLVMTargetMachineRef targetMachine;
     if(!getTargetMachine(triple, &targetMachine)) return 2;
@@ -127,13 +127,37 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        if(!compileLlvm(tokens, strings))
+        char *objFName;
+        char objFNameTmpBuffer[] = "/tmp/shvXXXXXX";
+        if(appArgs.objPattern)
+        {
+            mallocedReplaceStr(appArgs.objPattern, '%', fName, fNameLen - 4, 1, &objFName);
+        }
+        else
+        {
+            int fd = mkstemp(objFNameTmpBuffer);
+            if(fd == -1 || close(fd))
+            {
+                if(!appArgs.target) LLVMDisposeMessage(triple);
+                LLVMDisposeTargetMachine(targetMachine);
+                free(fullPath);
+                free(tokens);
+                free(strings);
+                fclose(f);
+                closedir(srcDir);
+                return 1;
+            }
+            objFName = objFNameTmpBuffer;
+        }
+
+        if(!compileLlvm(tokens, strings, triple, targetMachine, objFName, appArgs.verbose))
         {
             // We have to free tokens and strings when this fails
             // since lexFile succeeded
             ERR(
                 "Compilation Failed: Compiling Failed\n"
             );
+            if(appArgs.objPattern) free(objFName);
             if(!appArgs.target) LLVMDisposeMessage(triple);
             LLVMDisposeTargetMachine(targetMachine);
             free(fullPath);
@@ -143,6 +167,8 @@ int main(int argc, char **argv)
             closedir(srcDir);
             return 1;
         }
+
+        if(appArgs.objPattern) free(objFName);
 
         free(tokens);
         free(strings);

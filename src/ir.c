@@ -1,5 +1,6 @@
 #include <error.h>
 #include <llvm-c/Core.h>
+#include <llvm-c/TargetMachine.h>
 #include <llvm-c/Types.h>
 #include <string.h>
 #include <hashedbrown.h>
@@ -12,6 +13,7 @@
 #include "tokenUtil.h"
 #include "shvError.h"
 #include "shvType.h"
+#include "obj.h"
 
 static void createLlvm(LLVMContextRef *context,
                        LLVMBuilderRef *builder,
@@ -273,7 +275,14 @@ Cleanup:
     return ret;
 }
 
-bool compileLlvm(struct Token *tokens, char *strings)
+bool compileLlvm(
+    struct Token *tokens,
+    char *strings,
+    const char *triple,
+    LLVMTargetMachineRef targetMachine,
+    const char *objFName,
+    bool verbose
+)
 {
     LLVMContextRef context;
     LLVMBuilderRef builder;
@@ -282,8 +291,20 @@ bool compileLlvm(struct Token *tokens, char *strings)
     createLlvm(&context, &builder, &module, &pass);
 
     bool success = compileTokens(tokens, strings, context, module, builder, pass);
+    if(!success)
+    {
+        destroyLlvm(context, builder, module, pass);
+        return false;
+    }
 
     LLVMPrintModuleToFile(module, "./bin/testout.ir", NULL);
+
+    if(verbose)
+    {
+        printf("Emitting object file '%s'.\n", objFName);
+    }
+
+    success = toObjectFile(module, triple, targetMachine, objFName);
 
     destroyLlvm(context, builder, module, pass);
 

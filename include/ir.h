@@ -1,6 +1,7 @@
 #pragma once
 
 #include <llvm-c/Core.h>
+#include <llvm-c/TargetMachine.h>
 #include <hashedbrown.h>
 #include "token.h"
 #include "shvType.h"
@@ -27,4 +28,11 @@ struct ShvType tokenToType(struct Token token, struct FileContext *ctx);
 
 bool expectToken(int32_t actual, int32_t expected, struct FilePos *fpos, const char *fix);
 
-bool compileLlvm(struct Token *tokens, char *strings);
+bool compileLlvm(
+    struct Token *tokens,
+    char *strings,
+    const char *triple,
+    LLVMTargetMachineRef targetMachine,
+    const char *objFName,
+    bool verbose
+);
