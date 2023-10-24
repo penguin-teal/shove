@@ -21,7 +21,7 @@ to perform math operations and is simpler to read and write.
     * Variable Declarations ✔
     * if
     * while
-    * switch
+    * switch (Statement)
     * for/foreach?...
     * Function Calls
 - Expressions
@@ -30,6 +30,9 @@ to perform math operations and is simpler to read and write.
     * All Operators
     * Implicit Casting
     * Explicit Hard and Soft Casting
+    * switch (Expression)
+    * hash
+    * Ternary Conditional Operator
 - Compile to Object Files ✔
 - Custom Operators
 - Compile to Executable
