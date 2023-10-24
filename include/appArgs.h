@@ -12,6 +12,7 @@ struct AppArgs
     char *warn;
     bool pedantic;
     bool streetRules;
+    char *target;
 };
 
 bool doArgp(struct AppArgs *appArgs, int argc, char **argv);

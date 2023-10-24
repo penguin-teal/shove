@@ -11,7 +11,8 @@ enum OptKey
     OPT_ERR             = -1,
     OPT_WARN            = -2,
     OPT_PEDANTIC        = 'p',
-    OPT_STREET_RULES    = -3
+    OPT_STREET_RULES    = -3,
+    OPT_TARGET          = 't'
 };
 
 const char *argp_program_version = "shove 0.0.1";
@@ -26,7 +27,8 @@ static struct argp_option options[] =
     { "err",            OPT_ERR         , 0,     0,  "A space-separated list of warnings to turn into errors.", 2 },
     { "warn",           OPT_WARN        , 0,     0,  "A space-separated list of valid errors to turn into warnings.", 2 },
     { "pedantic",       OPT_PEDANTIC    , 0,     0,  "Turns all warnings into errors.", 2 },
-    { "street-rules",   OPT_STREET_RULES, 0,     0,  "Turns all valid errors into warnings.", 2 }
+    { "street-rules",   OPT_STREET_RULES, 0,     0,  "Turns all valid errors into warnings.", 2 },
+    { "target",         OPT_TARGET      , 0,     0,  "The LLVM target triple to compile for.", 1 }
 };
 
 static error_t parseOpt(int key, char *arg, struct argp_state *state)
@@ -76,6 +78,9 @@ static error_t parseOpt(int key, char *arg, struct argp_state *state)
             }
             arguments->streetRules = true;
             break;
+        case OPT_TARGET:
+            arguments->target = arg;
+            break;
         
         case ARGP_KEY_ARG:
             if(state->arg_num > 1)
@@ -117,6 +122,7 @@ bool doArgp(struct AppArgs *appArgs, int argc, char **argv)
     appArgs->warn = NULL;
     appArgs->pedantic = false;
     appArgs->streetRules = false;
+    appArgs->target = NULL;
 
     error_t result = argp_parse(&argp, argc, argv, 0, 0, appArgs);
     return !result;
