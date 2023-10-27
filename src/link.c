@@ -35,7 +35,7 @@ bool linkObjects(const char *outFName, string_list_T *objFNames, const char *lin
     {
         mallocedReplaceStr(linker, '%', "%s", 2, 1, &command);
         char *percent = strchr(command, '%');
-        if(strchr(percent + 1, '%'))
+        if(percent && strchr(percent + 1, '%'))
         {
             ERR(
                 "Extra '%%' found in the linker string given. "

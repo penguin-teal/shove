@@ -140,7 +140,7 @@ int main(int argc, char **argv)
         {
             mallocedReplaceStr(appArgs.objPattern, '%', fName, fNameLen - 4, 1, &objFName);
             char *percent = strchr(objFName, '%');
-            if(strchr(percent + 1, '%'))
+            if(percent && strchr(percent + 1, '%'))
             {
                 ERR(
                     "Compilation failed: Bad --obj-pattern: "
