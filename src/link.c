@@ -28,7 +28,12 @@ static char *findLinker()
     }
 }
 
-bool linkObjects(const char *outFName, string_list_T *objFNames, const char *linker)
+bool linkObjects(
+    const char *outFName,
+    string_list_T *objFNames,
+    const char *linker,
+    bool verbose
+)
 {
     char *command;
     if(linker)
@@ -60,6 +65,10 @@ bool linkObjects(const char *outFName, string_list_T *objFNames, const char *lin
     bool success;
     if(snpf >= 0 && (size_t)snpf < linkerSSz)
     {
+        if(verbose)
+        {
+            printf("Linking with: %s\n", linkerS);
+        }
         success = !system(linkerS);
     }
     else

@@ -218,7 +218,7 @@ int main(int argc, char **argv)
         fclose(f);
     }
 
-    linkObjects(appArgs.outFile, objFiles, NULL);
+    linkObjects(appArgs.outFile, objFiles, NULL, appArgs.verbose);
 
     if(!appArgs.objPattern)
     {
