@@ -1,3 +1,4 @@
+#include <llvm-c/Core.h>
 #include <llvm-c/TargetMachine.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -138,12 +139,34 @@ int main(int argc, char **argv)
         if(appArgs.objPattern)
         {
             mallocedReplaceStr(appArgs.objPattern, '%', fName, fNameLen - 4, 1, &objFName);
+            char *percent = strchr(objFName, '%');
+            if(strchr(percent + 1, '%'))
+            {
+                ERR(
+                    "Compilation failed: Bad --obj-pattern: "
+                    "Pattern cannot contain more than one '%%'."
+                );
+                if(!appArgs.target) LLVMDisposeMessage(triple);
+                LLVMDisposeTargetMachine(targetMachine);
+                free(fullPath);
+                free(tokens);
+                free(strings);
+                fclose(f);
+                closedir(srcDir);
+                destroyStringList(objFiles);
+                return 2;
+            }
         }
         else
         {
             int fd = mkstemp(objFNameTmpBuffer);
             if(fd == -1 || close(fd))
             {
+                ERR(
+                    "Compilation failed: Internal Error: "
+                    "Failed to create and write temp file '%s'.\n",
+                    objFNameTmpBuffer
+                );
                 if(!appArgs.target) LLVMDisposeMessage(triple);
                 LLVMDisposeTargetMachine(targetMachine);
                 free(fullPath);
