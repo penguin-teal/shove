@@ -195,6 +195,7 @@ static struct Token *next(LLVMValueRef *result,
         case TOKEN_SLASH:
             GET_NEXT();
             *resultType = divNums(result, ctx, resultType, *result, &resT2, result2);
+            return atToken;
         default:
             shvIssue(
                 SHVERROR_UNEXPECTED_TOKEN,
