@@ -16,6 +16,19 @@
 #include "obj.h"
 #include "link.h"
 
+static void removeTmpObjFs(string_list_T *objFiles, bool verbose)
+{
+    char *objFName = NULL;
+    while((objFName = stringListIterate(objFiles, objFName)))
+    {
+        if(verbose)
+        {
+            printf("Deleting temporary object file '%s'.\n", objFName);
+        }
+        remove(objFName);
+    }
+}
+
 int main(int argc, char **argv)
 {
     struct AppArgs appArgs = { 0 };
@@ -84,6 +97,7 @@ int main(int argc, char **argv)
                 LLVMDisposeTargetMachine(targetMachine);
                 free(fullPath);
                 closedir(srcDir);
+                if(!appArgs.objPattern) removeTmpObjFs(objFiles, appArgs.verbose);
                 destroyStringList(objFiles);
                 return 1;
             }
@@ -114,6 +128,7 @@ int main(int argc, char **argv)
             LLVMDisposeTargetMachine(targetMachine);
             free(fullPath);
             closedir(srcDir);
+            if(!appArgs.objPattern) removeTmpObjFs(objFiles, appArgs.verbose);
             destroyStringList(objFiles);
             return 1;
         }
@@ -139,6 +154,7 @@ int main(int argc, char **argv)
             free(fullPath);
             fclose(f);
             closedir(srcDir);
+            if(!appArgs.objPattern) removeTmpObjFs(objFiles, appArgs.verbose);
             destroyStringList(objFiles);
             return 1;
         }
@@ -162,6 +178,7 @@ int main(int argc, char **argv)
                 free(strings);
                 fclose(f);
                 closedir(srcDir);
+                if(!appArgs.objPattern) removeTmpObjFs(objFiles, appArgs.verbose);
                 destroyStringList(objFiles);
                 return 2;
             }
@@ -183,6 +200,7 @@ int main(int argc, char **argv)
                 free(strings);
                 fclose(f);
                 closedir(srcDir);
+                if(!appArgs.objPattern) removeTmpObjFs(objFiles, appArgs.verbose);
                 destroyStringList(objFiles);
                 return 1;
             }
@@ -204,6 +222,7 @@ int main(int argc, char **argv)
             free(strings);
             fclose(f);
             closedir(srcDir);
+            if(!appArgs.objPattern) removeTmpObjFs(objFiles, appArgs.verbose);
             destroyStringList(objFiles);
             return 1;
         }
@@ -218,25 +237,27 @@ int main(int argc, char **argv)
         fclose(f);
     }
 
-    linkObjects(appArgs.outFile, objFiles, NULL, appArgs.verbose);
-
-    if(!appArgs.objPattern)
+    if(!linkObjects(appArgs.outFile, objFiles, NULL, appArgs.verbose))
     {
-        char *objFName = NULL;
-        while((objFName = stringListIterate(objFiles, objFName)))
-        {
-            if(appArgs.verbose)
-            {
-                printf("Deleting temporary object file '%s'.\n", objFName);
-            }
-            remove(objFName);
-        }
+        ERR(
+            "Linking failed. Didn't create '%s'.\n",
+            appArgs.outFile
+        );
+        if(!appArgs.target) LLVMDisposeMessage(triple);
+        LLVMDisposeTargetMachine(targetMachine);
+        free(fullPath);
+        closedir(srcDir);
+        if(!appArgs.objPattern) removeTmpObjFs(objFiles, appArgs.verbose);
+        destroyStringList(objFiles);
+        return 1;
     }
+
 
     if(!appArgs.target) LLVMDisposeMessage(triple);
     LLVMDisposeTargetMachine(targetMachine);
     free(fullPath);
     closedir(srcDir);
+    if(!appArgs.objPattern) removeTmpObjFs(objFiles, appArgs.verbose);
     destroyStringList(objFiles);
     return 0;
 }
