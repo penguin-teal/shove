@@ -292,10 +292,10 @@ struct Token *irDefineFn(LLVMValueRef fn,
 
         do
         {
-            htSetPtr(
+            htSetShvType(
                 fnScope,
                 LLVMGetValueName2(paramN, &whoAskedLength),
-                paramN
+                &parameterTypes[i]
             );
         }
         while(i < paramCount);
