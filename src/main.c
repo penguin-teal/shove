@@ -21,6 +21,14 @@ int main(int argc, char **argv)
     struct AppArgs appArgs = { 0 };
     if(!doArgp(&appArgs, argc, argv)) return 2;
 
+    if(!appArgs.outFile || !strcmp(appArgs.outFile, "-"))
+    {
+        ERR(
+            "Option '-o' ('--out-file') is required.\n"
+        );
+        return 2;
+    }
+
     if(appArgs.pedantic) setPedanticShvIssueSeverities();
     else if(appArgs.streetRules) setStreetRulesShvIssueSeverities();
     else setDefaultShvIssueSeverities();
