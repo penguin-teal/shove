@@ -14,6 +14,7 @@
 #include "appArgs.h"
 #include "strOp.h"
 #include "obj.h"
+#include "link.h"
 
 int main(int argc, char **argv)
 {
@@ -208,6 +209,8 @@ int main(int argc, char **argv)
 
         fclose(f);
     }
+
+    linkObjects(appArgs.outFile, objFiles, NULL);
 
     if(!appArgs.objPattern)
     {
