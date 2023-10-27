@@ -15,7 +15,7 @@ jobs:
         - uses: actions/checkout@v3
         - run: sudo apt-get install llvm
         - run: make
-        - run: ./bin/shove ./tests/add
+        - run: ./bin/shove ./tests/add -v --emit-llvm=./bin/%.ll -o ./bin/test-add
         - run: make clean
 
     build-clang:
@@ -29,5 +29,5 @@ jobs:
         - uses: actions/checkout@v3
         - run: sudo apt-get install llvm
         - run: make
-        - run: ./bin/shove ./tests/add
+        - run: ./bin/shove ./tests/add -v --emit-llvm=./bin/%.ll -o ./bin/test-add
         - run: make clean
