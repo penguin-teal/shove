@@ -14,7 +14,7 @@ jobs:
         steps:
         - uses: actions/checkout@v3
         - run: sudo apt-get install llvm
-        - run: make
+        - run: make CC=gcc
         - run: ./bin/shove ./tests/add -v --emit-llvm=./bin/%.ll -o ./bin/test-add
         - run: make clean
 
@@ -22,12 +22,9 @@ jobs:
 
         runs-on: ubuntu-latest
 
-        env:
-            CC: clang
-
         steps:
         - uses: actions/checkout@v3
         - run: sudo apt-get install llvm
-        - run: make
+        - run: make CC=clang
         - run: ./bin/shove ./tests/add -v --emit-llvm=./bin/%.ll -o ./bin/test-add
         - run: make clean
