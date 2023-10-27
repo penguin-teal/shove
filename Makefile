@@ -12,7 +12,7 @@ LIB				:= ./lib
 SRC 		    := ./src
 SRCS  		    := $(wildcard $(SRC)/*.c)
 OUT				:= $(BIN)/shove
-LLVMFLAGS		:= `llvm-config --cflags --ldflags --system-libs --libs all`
+LLVMFLAGS		:= $(shell llvm-config --cflags --ldflags --system-libs --libs all)
 
 HASHEDBROWN		:= ./libs/hashedbrown
 HASHEDBROWNOUT	:= $(HASHEDBROWN)/bin/libhashedbrown.a
