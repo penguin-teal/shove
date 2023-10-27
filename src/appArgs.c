@@ -13,7 +13,8 @@ enum OptKey
     OPT_PEDANTIC        = 'p',
     OPT_STREET_RULES    = -3,
     OPT_TARGET          = 't',
-    OPT_OBJ_PATTERN     = -4
+    OPT_OBJ_PATTERN     = -4,
+    OPT_EMIT_LLVM       = -5
 };
 
 const char *argp_program_version = "shove 0.0.1";
@@ -30,7 +31,8 @@ static struct argp_option options[] =
     { "pedantic",       OPT_PEDANTIC    , 0,           0,  "Turns all warnings into errors.", 2 },
     { "street-rules",   OPT_STREET_RULES, 0,           0,  "Turns all valid errors into warnings.", 2 },
     { "target",         OPT_TARGET      , "TARGET",    0,  "The LLVM target triple to compile for.", 1 },
-    { "obj-pattern",    OPT_OBJ_PATTERN , "PATTERN",   0,  "The pattern to create object files with. A '%' will be replace with the non-extension source file name.", 1 }
+    { "obj-pattern",    OPT_OBJ_PATTERN , "PATTERN",   0,  "The pattern to create object files with. A '%' will be replace with the non-extension source file name.", 1 },
+    { "emit-llvm",      OPT_EMIT_LLVM   , "FILE",      0,  "Also emit LLVM IR into file.", 1 }
 };
 
 static error_t parseOpt(int key, char *arg, struct argp_state *state)
@@ -86,6 +88,8 @@ static error_t parseOpt(int key, char *arg, struct argp_state *state)
         case OPT_OBJ_PATTERN:
             arguments->objPattern = arg;
             break;
+        case OPT_EMIT_LLVM:
+            arguments->emitLlvm = arg;
         
         case ARGP_KEY_ARG:
             if(state->arg_num > 1)
@@ -122,13 +126,14 @@ bool doArgp(struct AppArgs *appArgs, int argc, char **argv)
 
     appArgs->verbose = false;
     appArgs->quiet = false;
-    appArgs->outFile = "-";
+    appArgs->outFile = NULL;
     appArgs->err = NULL;
     appArgs->warn = NULL;
     appArgs->pedantic = false;
     appArgs->streetRules = false;
     appArgs->target = NULL;
     appArgs->objPattern = NULL;
+    appArgs->emitLlvm = NULL;
 
     error_t result = argp_parse(&argp, argc, argv, 0, 0, appArgs);
     return !result;

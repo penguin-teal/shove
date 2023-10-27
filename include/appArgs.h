@@ -14,6 +14,7 @@ struct AppArgs
     bool streetRules;
     char *target;
     char *objPattern;
+    char *emitLlvm;
 };
 
 bool doArgp(struct AppArgs *appArgs, int argc, char **argv);

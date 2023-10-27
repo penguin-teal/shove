@@ -207,7 +207,33 @@ int main(int argc, char **argv)
             objFName = objFNameTmpBuffer;
         }
 
-        if(!compileLlvm(tokens, strings, triple, targetMachine, objFName, appArgs.verbose))
+        char *emitLlvmArg;
+        if(appArgs.emitLlvm)
+        {
+            mallocedReplaceStr(appArgs.emitLlvm, '%', fName, fNameLen - 4, 1, &emitLlvmArg);
+            char *percent = strchr(objFName, '%');
+            if(percent && strchr(percent + 1, '%'))
+            {
+                ERR(
+                    "Compilation failed: Bad --emit-llvm: "
+                    "Pattern cannot contain more than one '%%'."
+                );
+                if(appArgs.objPattern) free(objFName);
+                if(!appArgs.target) LLVMDisposeMessage(triple);
+                LLVMDisposeTargetMachine(targetMachine);
+                free(fullPath);
+                free(tokens);
+                free(strings);
+                fclose(f);
+                closedir(srcDir);
+                if(!appArgs.objPattern) removeTmpObjFs(objFiles, appArgs.verbose);
+                destroyStringList(objFiles);
+                return 2;
+            }
+        }
+        else emitLlvmArg = NULL;
+
+        if(!compileLlvm(tokens, strings, triple, targetMachine, objFName, emitLlvmArg, appArgs.verbose))
         {
             // We have to free tokens and strings when this fails
             // since lexFile succeeded

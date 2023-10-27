@@ -34,5 +34,6 @@ bool compileLlvm(
     const char *triple,
     LLVMTargetMachineRef targetMachine,
     const char *objFName,
+    const char *emitLlvmArg,
     bool verbose
 );

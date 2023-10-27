@@ -282,6 +282,7 @@ bool compileLlvm(
     const char *triple,
     LLVMTargetMachineRef targetMachine,
     const char *objFName,
+    const char *emitLlvmArg,
     bool verbose
 )
 {
@@ -298,7 +299,11 @@ bool compileLlvm(
         return false;
     }
 
-    LLVMPrintModuleToFile(module, "./bin/testout.ir", NULL);
+    if(emitLlvmArg)
+    {
+        if(verbose) printf("Emitting LLVM IR file '%s'.\n", emitLlvmArg);
+        LLVMPrintModuleToFile(module, emitLlvmArg, NULL);
+    }
 
     if(verbose)
     {
