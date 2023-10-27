@@ -8,6 +8,7 @@
 #include "fileIo.h"
 #include "lexer.h"
 #include "ir.h"
+#include "list.h"
 #include "shvError.h"
 #include "appArgs.h"
 #include "strOp.h"
@@ -52,6 +53,8 @@ int main(int argc, char **argv)
     LLVMTargetMachineRef targetMachine;
     if(!getTargetMachine(triple, &targetMachine)) return 2;
 
+    string_list_T *objFiles = createStringList(8);
+
     while((dirEntry = readdir(srcDir)))
     {
         char *fName = dirEntry->d_name;
@@ -71,6 +74,7 @@ int main(int argc, char **argv)
                 LLVMDisposeTargetMachine(targetMachine);
                 free(fullPath);
                 closedir(srcDir);
+                destroyStringList(objFiles);
                 return 1;
             }
         }
@@ -100,6 +104,7 @@ int main(int argc, char **argv)
             LLVMDisposeTargetMachine(targetMachine);
             free(fullPath);
             closedir(srcDir);
+            destroyStringList(objFiles);
             return 1;
         }
 
@@ -124,6 +129,7 @@ int main(int argc, char **argv)
             free(fullPath);
             fclose(f);
             closedir(srcDir);
+            destroyStringList(objFiles);
             return 1;
         }
 
@@ -145,6 +151,7 @@ int main(int argc, char **argv)
                 free(strings);
                 fclose(f);
                 closedir(srcDir);
+                destroyStringList(objFiles);
                 return 1;
             }
             objFName = objFNameTmpBuffer;
@@ -165,8 +172,11 @@ int main(int argc, char **argv)
             free(strings);
             fclose(f);
             closedir(srcDir);
+            destroyStringList(objFiles);
             return 1;
         }
+
+        stringListPush(objFiles, objFName, 0);
 
         if(appArgs.objPattern) free(objFName);
 
@@ -176,9 +186,23 @@ int main(int argc, char **argv)
         fclose(f);
     }
 
+    if(!appArgs.objPattern)
+    {
+        char *objFName = NULL;
+        while((objFName = stringListIterate(objFiles, objFName)))
+        {
+            if(appArgs.verbose)
+            {
+                printf("Deleting temporary object file '%s'.\n", objFName);
+            }
+            remove(objFName);
+        }
+    }
+
     if(!appArgs.target) LLVMDisposeMessage(triple);
     LLVMDisposeTargetMachine(targetMachine);
     free(fullPath);
     closedir(srcDir);
+    destroyStringList(objFiles);
     return 0;
 }
