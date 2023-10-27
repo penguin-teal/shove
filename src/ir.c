@@ -246,6 +246,7 @@ static bool compileTokens(struct Token *tokens,
                 goto Cleanup;
             case TOKEN_EXTERN:
                 atToken++;
+                // FALLTHRU
             case TOKEN_IDENTIFIER:
                 atToken = startsWithIdentifier(
                         atToken,
