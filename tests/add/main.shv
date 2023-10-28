@@ -2,6 +2,8 @@ namespace add;
 
 i32 main
 {
-    i32 x = 0xA4;
-    return x + 7;
+    i8 tiny = 0o17;
+    i16 small = small + 0xA4;
+
+    return small + 7 + 0b110;
 }
