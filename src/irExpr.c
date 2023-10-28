@@ -157,6 +157,7 @@ static struct Token *next(LLVMValueRef *result,
                         name
                     );
                 }
+                *resultType = t;
                 return atToken + 1;
             }
         case TOKEN_PLUS:
