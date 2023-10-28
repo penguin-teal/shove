@@ -101,6 +101,22 @@ char* getTokenString(int32_t token)
             return "(";
         case TOKEN_PAREN_CLOSE:
             return ")";
+        case TOKEN_HEAP:
+            return "heap";
+        case TOKEN_USING:
+            return "using";
+        case TOKEN_CASE:
+            return "case";
+        case TOKEN_COLON:
+            return "colon";
+        case TOKEN_FALL:
+            return "fall";
+        case TOKEN_BREAK:
+            return "break";
+        case TOKEN_WHILE:
+            return "while";
+        case TOKEN_GOTO:
+            return "goto";
         default:
             return "Unknown";
     }

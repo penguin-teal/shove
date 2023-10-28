@@ -1,6 +1,6 @@
 #pragma once
-#include <shvError.h>
 #include <stdint.h>
+#include "shvError.h"
 
 /**
  * Represents a token and associated information.
@@ -67,4 +67,12 @@ enum ShvToken
     TOKEN_VOID            =   -41, // void
     TOKEN_PAREN_OPEN      =   -42, // (
     TOKEN_PAREN_CLOSE     =   -43, // )
+    TOKEN_HEAP            =   -44, // heap a
+    TOKEN_USING           =   -45, // using a
+    TOKEN_CASE            =   -46, // case a
+    TOKEN_COLON           =   -47, // a:
+    TOKEN_FALL            =   -48, // fall
+    TOKEN_BREAK           =   -49, // break
+    TOKEN_WHILE           =   -50, // while
+    TOKEN_GOTO            =   -51, // goto
 };
