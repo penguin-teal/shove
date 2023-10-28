@@ -14,6 +14,7 @@
 #include "shvError.h"
 #include "shvType.h"
 #include "obj.h"
+#include "primitives.h"
 
 static void createLlvm(LLVMContextRef *context,
                        LLVMBuilderRef *builder,
@@ -78,21 +79,6 @@ bool htSetShvType(hashtable_T *ht, const char *key, struct ShvType *val)
 struct ShvType tokenToType(struct Token token, struct FileContext *ctx)
 {
     return htGetShvType(ctx->identifiers, ctx->strings + token.value);
-}
-
-static void populatePrimitiveTypes(struct FileContext *ctx)
-{
-    struct ShvType type;
-
-    type.llvm = LLVMInt32TypeInContext(ctx->context);
-    type.isSigned = true;
-    type.bitSize = 32;
-    type.friendly = "i32";
-    htSetShvType(
-        ctx->identifiers,
-        "i32",
-        &type
-    );
 }
 
 static struct Token *startsWithIdentifier(struct Token *tokens,
