@@ -3,7 +3,7 @@ namespace add;
 i32 main
 {
     i8 tiny = 0o17;
-    i16 small = small + 0xA4;
+    i16 small = tiny + 0xA4;
 
     return small + 7 + 0b110;
 }
