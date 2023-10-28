@@ -6,6 +6,7 @@
 #include "shvType.h"
 
 struct Token *compileExpr(LLVMValueRef *result,
+                          struct ShvType *resultType,
                           struct ShvType typeExpectation,
                           struct Token *tokens,
                           char *strings,

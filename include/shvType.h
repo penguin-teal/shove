@@ -16,3 +16,5 @@ struct ShvType
 };
 
 char *getShvTypeName(struct ShvType *t);
+
+bool shvTypesAreCopies(struct ShvType *a, struct ShvType *b);

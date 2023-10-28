@@ -12,6 +12,7 @@
 #include "irExpr.h"
 #include "shvType.h"
 #include "strOp.h"
+#include "casting.h"
 
 struct Token *irDeclareFn(struct Token *tokens,
                  struct FileContext *ctx,
@@ -168,7 +169,8 @@ struct Token *statementStartsWithId(struct Token *tokens,
                 tok += 2;
 
                 LLVMValueRef result = 0;
-                tok = compileExpr(&result, type, tok, strings, ctx);
+                struct ShvType resultT;
+                tok = compileExpr(&result, &resultT, type, tok, strings, ctx);
                 if(!tok) return NULL;
                 else if(tok->symbol != TOKEN_TERMINATE)
                 {
@@ -178,6 +180,14 @@ struct Token *statementStartsWithId(struct Token *tokens,
                         -1, "%s = <expression>;", name
                     );
                     return NULL;
+                }
+
+                if(!shvTypesAreCopies(&type, &resultT))
+                {
+                    if(!implicitCast(ctx, &tok->fpos, &resultT, &type))
+                    {
+                        return NULL;
+                    }
                 }
 
                 LLVMBuildStore(ctx->builder, result, pAlloca);
@@ -229,14 +239,23 @@ struct Token *irDefineBranch(
                 else
                 {
                     LLVMValueRef result;
+                    struct ShvType exprType;
                     tok = compileExpr(
                         &result,
+                        &exprType,
                         returnType,
                         tok,
                         strings,
                         ctx
                     );
                     if(!tok) return NULL;
+                    if(!shvTypesAreCopies(&returnType, &exprType))
+                    {
+                        if(!implicitCast(ctx, &tok->fpos, &returnType, &exprType))
+                        {
+                            return NULL;
+                        }
+                    }
 
                     LLVMBuildRet(
                         ctx->builder,

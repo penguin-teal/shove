@@ -109,12 +109,12 @@ static struct Token *next(LLVMValueRef *result,
             atToken++;
             atToken = compileExpr(
                 result,
+                resultType,
                 typeExpectation,
                 atToken,
                 strings,
                 ctx
             );
-            *resultType = typeExpectation;
             if(!expectToken(
                 atToken->symbol,
                 TOKEN_PAREN_CLOSE,
@@ -132,10 +132,10 @@ static struct Token *next(LLVMValueRef *result,
                 double fLiteral = 0;
                 memcpy(&fLiteral, &atToken->value, sizeof(double));
                 *result = LLVMConstReal(
-                typeExpectation.llvm,
+                    LLVMFloatTypeInContext(ctx->context),
                     fLiteral
                 );
-                *resultType = typeExpectation;
+                *resultType = htGetShvType(ctx->identifiers, "f32");
                 return atToken + 1;
             }
         case TOKEN_IDENTIFIER:
@@ -210,6 +210,7 @@ static struct Token *next(LLVMValueRef *result,
 }
 
 struct Token *compileExpr(LLVMValueRef *result,
+                          struct ShvType *resultType,
                           struct ShvType typeExpectation,
                           struct Token *tokens,
                           char *strings,
@@ -218,11 +219,10 @@ struct Token *compileExpr(LLVMValueRef *result,
 {
     bool done = false;
     *result = NULL;
-    struct ShvType resultType = { 0 };
     struct Token *atToken = tokens;
     while(true)
     {
-        atToken = next(result, &resultType, typeExpectation,
+        atToken = next(result, resultType, typeExpectation,
             atToken, strings, &done, ctx);
         if(done) break;
     }
