@@ -32,7 +32,7 @@ $(HASHEDBROWNLIB): $(HASHEDBROWNOUT)
 	cp -u $(HASHEDBROWNOUT) $(HASHEDBROWNLIB)
 
 $(HASHEDBROWNOUT): $(HASHEDBROWN)
-	make -C $(HASHEDBROWN) debug
+	make -C $(HASHEDBROWN) debug CC=$(CC)
 
 $(HASHEDBROWN):
 	git clone https://github.com/penguin-teal/hashedbrown $(HASHEDBROWN)
