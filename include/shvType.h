@@ -12,4 +12,7 @@ struct ShvType
      */
     bool isSigned;
     uint64_t bitSize;
+    char *friendly;
 };
+
+char *getShvTypeName(struct ShvType *t);
