@@ -167,6 +167,7 @@ struct Token *statementStartsWithId(struct Token *tokens,
                 LLVMValueRef pAlloca = htGetPtr(ctx->identifiers, name);
 
                 tok += 2;
+                struct FilePos *exprFpos = &tok->fpos;
 
                 LLVMValueRef result = 0;
                 struct ShvType resultT;
@@ -184,7 +185,7 @@ struct Token *statementStartsWithId(struct Token *tokens,
 
                 if(!shvTypesAreCopies(&type, &resultT))
                 {
-                    if(!implicitCast(ctx, &tok->fpos, &resultT, &type))
+                    if(!implicitCast(ctx, exprFpos, &resultT, &type))
                     {
                         return NULL;
                     }
@@ -240,6 +241,7 @@ struct Token *irDefineBranch(
                 {
                     LLVMValueRef result;
                     struct ShvType exprType;
+                    struct FilePos *exprFpos = &tok->fpos;
                     tok = compileExpr(
                         &result,
                         &exprType,
@@ -251,7 +253,7 @@ struct Token *irDefineBranch(
                     if(!tok) return NULL;
                     if(!shvTypesAreCopies(&returnType, &exprType))
                     {
-                        if(!implicitCast(ctx, &tok->fpos, &returnType, &exprType))
+                        if(!implicitCast(ctx, exprFpos, &returnType, &exprType))
                         {
                             return NULL;
                         }
