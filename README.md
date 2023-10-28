@@ -35,7 +35,7 @@ to perform math operations and is simpler to read and write.
     * Ternary Conditional Operator
 - Compile to Object Files ✔
 - Custom Operators
-- Compile to Executable
+- Compile to Executable ✔
 - Cross-Platform Support
     * Cross-Compilation ✔
     * Compiler Linux Support ✔
