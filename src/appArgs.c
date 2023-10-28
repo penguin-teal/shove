@@ -32,7 +32,9 @@ static struct argp_option options[] =
     { "street-rules",   OPT_STREET_RULES, 0,           0,  "Turns all valid errors into warnings.", 2 },
     { "target",         OPT_TARGET      , "TARGET",    0,  "The LLVM target triple to compile for.", 1 },
     { "obj-pattern",    OPT_OBJ_PATTERN , "PATTERN",   0,  "The pattern to create object files with. A '%' will be replace with the non-extension source file name.", 1 },
-    { "emit-llvm",      OPT_EMIT_LLVM   , "FILE",      0,  "Also emit LLVM IR into file.", 1 }
+    { "emit-llvm",      OPT_EMIT_LLVM   , "FILE",      0,  "Also emit LLVM IR into file.", 1 },
+
+    { 0 }
 };
 
 static error_t parseOpt(int key, char *arg, struct argp_state *state)
