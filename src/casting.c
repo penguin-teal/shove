@@ -28,7 +28,7 @@ bool implicitCast(
         )) return false;
     }
 
-    if(given->bitSize < target->bitSize)
+    if(given->bitSize > target->bitSize)
     {
         if(shvIssue(
             SHVERROR_ILLEGAL_IMPLICIT_CAST,
