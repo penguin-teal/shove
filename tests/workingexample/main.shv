@@ -1,0 +1,7 @@
+namespace add;
+
+i32 main
+{
+    i32 x = 0xA4;
+    return x + 7;
+}
