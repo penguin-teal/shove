@@ -2,7 +2,7 @@
 
 # Archived 2023/12/14
 
-This project has now been archived. The basis of the language works, for example the
+This project has now been archived. The basis of the language works, for example
 this example code:
 
 ```shove
