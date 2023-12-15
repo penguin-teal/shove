@@ -1,5 +1,24 @@
 [![Build Status](https://github.com/penguin-teal/shove/actions/workflows/Build.yml/badge.svg)](https://github.com/penguin-teal/shove/actions/workflows/Build.yml)
 
+# Archived 2023/12/14
+
+This project has now been archived. The basis of the language works, for example the
+this example code:
+
+```shove
+namespace add;
+
+i32 main
+{
+    i32 x = 0xA4;
+    return x + 7;
+}
+```
+
+I haven't worked on this for 2 months now and am now working on another
+lower-level math-oriented language called
+[ANSLL](https://github.com/penguin-teal/ANSLL).
+
 # shove
 
 shove is still a work in progres. shove is a langauge and this project is the
