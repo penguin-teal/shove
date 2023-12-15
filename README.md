@@ -27,6 +27,32 @@ shove compiler.
 shove is meant to be zero-overhead and similar to C, but makes it much easier
 to perform math operations and is simpler to read and write.
 
+## Building and Using
+
+This compiler has only been tested on Linux. It should work on Mac,
+but is untested.
+
+Build with:
+```
+make
+```
+
+Compile the example `shove` source file:
+```shove
+mkdir ./tests/bin
+# This compiles and automatically links and creates an executable:
+./bin/shove ./tests/workingexample -o ./tests/bin/workingexample
+# Then to run the executable
+./tests/bin/workingexample
+# Then you can check the return value of that program
+echo "$?"
+```
+
+See all options with:
+```shove
+./bin/shove --help
+```
+
 ## Roadmap
 
 - Lexer ✔
